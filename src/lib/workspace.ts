@@ -108,7 +108,7 @@ function sanitizeColumns(raw: unknown): Column[] {
 		const span = clampSpan(it.span);
 		cols.push({ id: typeof it.id === 'string' ? it.id : newId(), span, cards });
 	}
-	return cols.length > 0 ? cols : defaultColumns();
+	return cols;
 }
 
 function clampSpan(v: unknown): number {
@@ -390,6 +390,33 @@ export function removeTodo(spaceId: string, columnId: string, cardId: string, to
 								? { ...x, todos: x.todos.filter((t) => t.id !== todoId) }
 								: x
 						)
+					}
+				: c
+		)
+	}));
+}
+
+export function reorderTodo(
+	spaceId: string,
+	columnId: string,
+	cardId: string,
+	fromIndex: number,
+	toIndex: number
+) {
+	if (fromIndex === toIndex) return;
+	updateSpace(spaceId, (s) => ({
+		...s,
+		columns: s.columns.map((c) =>
+			c.id === columnId
+				? {
+						...c,
+						cards: c.cards.map((x) => {
+							if (x.type !== 'todo' || x.id !== cardId) return x;
+							const todos = [...x.todos];
+							const [moved] = todos.splice(fromIndex, 1);
+							todos.splice(toIndex, 0, moved);
+							return { ...x, todos };
+						})
 					}
 				: c
 		)

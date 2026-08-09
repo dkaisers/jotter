@@ -10,6 +10,7 @@
 		workspace
 	} from '$lib/workspace';
 	import { onMount } from 'svelte';
+	import Settings from './Settings.svelte';
 
 	let scrollEl: HTMLElement | undefined = $state();
 	let canLeft = $state(false);
@@ -18,8 +19,20 @@
 	let nameDraft = $state('');
 	let confirmingId: string | null = $state(null);
 	let dragId: string | null = $state(null);
+	let renameInput: HTMLInputElement | undefined = $state();
 
 	const active = $derived($activeSpace);
+
+	const nameWidth = $derived.by(() => {
+		const font = renameInput
+			? getComputedStyle(renameInput).font
+			: '1rem ui-sans-serif, system-ui, sans-serif';
+		const canvas = document.createElement('canvas');
+		const ctx = canvas.getContext('2d');
+		if (!ctx) return nameDraft.length * 8;
+		ctx.font = font;
+		return Math.ceil(ctx.measureText(nameDraft || ' ').width);
+	});
 
 	function updateArrows() {
 		if (!scrollEl) return;
@@ -41,6 +54,7 @@
 	function startRename(spaceId: string, name: string) {
 		editingId = spaceId;
 		nameDraft = name;
+		requestAnimationFrame(() => renameInput?.focus());
 	}
 
 	function commitRename() {
@@ -113,21 +127,23 @@
 		{#each $workspace.spaces as space (space.id)}
 			<div
 				data-space-id={space.id}
-				class="flex shrink-0 items-center gap-0.5 rounded-t-md border-b-2 px-2 py-1.5 text-sm"
-				class:bg-surface={active?.id === space.id}
+				class="flex shrink-0 items-center gap-0.5 rounded-t-md border-b-2 px-3.5 py-1.5 text-base"
 				class:border-primary={active?.id === space.id}
 				class:border-transparent={active?.id !== space.id}
+				style={`background-color: ${active?.id === space.id ? 'var(--surface)' : 'color-mix(in srgb, var(--surface) 40%, transparent)'}`}
 			>
 				{#if editingId === space.id}
 					<input
 						type="text"
+						bind:this={renameInput}
 						bind:value={nameDraft}
+						style={`width: ${Math.max(nameWidth, 1)}px`}
 						onkeydown={(e) => {
 							if (e.key === 'Enter') commitRename();
 							if (e.key === 'Escape') editingId = null;
 						}}
 						onblur={commitRename}
-						class="w-24 rounded-md border border-outline-variant bg-base px-1 py-0.5 text-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary focus:outline-none"
+						class="min-w-0 rounded-none border-0 bg-transparent px-0 py-0 text-base text-on-surface focus:ring-0 focus:outline-none"
 					/>
 				{:else}
 					<button
@@ -137,7 +153,7 @@
 						onpointerdown={(e) => onDragStart(e, space.id)}
 						onclick={() => setActiveSpace(space.id)}
 						ondblclick={() => startRename(space.id, space.name)}
-						class="cursor-grab active:cursor-grabbing"
+						class="cursor-pointer active:cursor-grabbing"
 						class:text-on-surface={active?.id === space.id}
 						class:text-on-surface-variant={active?.id !== space.id}
 					>
@@ -164,12 +180,17 @@
 		<button
 			type="button"
 			title="Add space"
-			onclick={addSpace}
-			class="mr-2 flex w-6 shrink-0 cursor-pointer items-center justify-center self-stretch rounded-t-md border-b-2 border-transparent text-on-surface-variant transition-colors hover:bg-surface hover:text-on-surface focus:ring-2 focus:ring-primary focus:outline-none"
+			onclick={(e) => {
+				e.currentTarget.blur();
+				addSpace();
+			}}
+			class="mr-2 flex w-6 shrink-0 cursor-pointer items-center justify-center self-stretch rounded-t-md border-b-2 border-transparent text-on-surface-variant transition-colors hover:bg-surface hover:text-on-surface focus:outline-none"
 		>
 			<Plus class="size-4" />
 		</button>
 	</div>
+
+	<Settings />
 </div>
 
 {#if confirmingId}

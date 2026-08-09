@@ -19,12 +19,14 @@
 	let editingTitle = $state(false);
 	let titleDraft = $state('');
 	let confirming = $state(false);
+	let titleInput: HTMLInputElement | undefined = $state();
 
 	const hasContent = $derived(card.type === 'todo' ? card.todos.length > 0 : card.text.length > 0);
 
 	function startRename() {
 		titleDraft = card.title;
 		editingTitle = true;
+		requestAnimationFrame(() => titleInput?.focus());
 	}
 
 	function commitRename() {
@@ -43,7 +45,7 @@
 </script>
 
 <div data-card-id={card.id} class="flex flex-col rounded-lg bg-surface shadow-sm">
-	<header class="flex shrink-0 items-center gap-1 px-3 py-2">
+	<header class="flex shrink-0 items-center gap-1 border-b border-outline-variant px-3 py-2">
 		<button
 			type="button"
 			title="Drag to move"
@@ -56,20 +58,21 @@
 		{#if editingTitle}
 			<input
 				type="text"
+				bind:this={titleInput}
 				bind:value={titleDraft}
 				onkeydown={(e) => {
 					if (e.key === 'Enter') commitRename();
 					if (e.key === 'Escape') editingTitle = false;
 				}}
 				onblur={commitRename}
-				class="w-full rounded-md border border-outline-variant bg-base px-2 py-1 text-sm font-semibold text-on-surface focus:border-primary focus:ring-2 focus:ring-primary focus:outline-none"
+				class="min-w-0 flex-1 rounded-none border-0 bg-transparent px-2 py-0.5 font-semibold text-base text-on-surface focus:ring-0 focus:outline-none"
 			/>
 		{:else}
 			<button
 				type="button"
 				title="Rename"
 				onclick={startRename}
-				class="min-w-0 flex-1 cursor-text rounded-md px-1 py-0.5 text-left text-sm font-semibold text-on-surface hover:bg-surface-variant focus:ring-2 focus:ring-primary focus:outline-none"
+				class="min-w-0 flex-1 cursor-text rounded-md px-2 py-0.5 text-left font-semibold text-base text-on-surface focus:outline-none"
 			>
 				<span class="block truncate">{card.title}</span>
 			</button>
@@ -85,7 +88,7 @@
 		</button>
 	</header>
 
-	<div class="content min-h-0 flex-1 px-3 pb-3">
+	<div class="content min-h-0 flex-1 px-3 pt-3 pb-3">
 		{#if card.type === 'todo'}
 			<TodoList {space} {column} {card} />
 		{:else}

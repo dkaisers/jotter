@@ -9,7 +9,7 @@
 				var key = 'jotter:theme';
 				var modes = ['light', 'dark'];
 				var fonts = ['sans', 'serif', 'mono'];
-				var s = { mode: 'dark', uiFont: 'sans', contentFont: 'serif' };
+				var s = { mode: 'dark', uiFont: 'sans', contentFont: 'serif', grain: true };
 				try {
 					var stored = window.localStorage.getItem(key);
 					if (stored) {
@@ -17,11 +17,13 @@
 						if (modes.includes(parsed.mode)) s.mode = parsed.mode;
 						if (fonts.includes(parsed.uiFont)) s.uiFont = parsed.uiFont;
 						if (fonts.includes(parsed.contentFont)) s.contentFont = parsed.contentFont;
+						if (typeof parsed.grain === 'boolean') s.grain = parsed.grain;
 					}
 				} catch (e) {}
 				document.documentElement.setAttribute('data-theme', s.mode);
 				document.documentElement.setAttribute('data-ui-font', s.uiFont);
 				document.documentElement.setAttribute('data-content-font', s.contentFont);
+				document.documentElement.setAttribute('data-grain', s.grain ? '1' : '0');
 			})();
 		</script>
 		%sveltekit.head%
