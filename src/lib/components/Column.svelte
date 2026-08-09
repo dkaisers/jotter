@@ -47,12 +47,12 @@
 		{/each}
 	</div>
 
-	<div class="mt-3 flex items-center justify-center gap-2 border-t border-outline-variant pt-3">
+	<div class="mt-3 flex items-center justify-center gap-2">
 		<button
 			type="button"
 			title="Add todo list"
 			onclick={() => addCard(space.id, column.id, 'todo')}
-			class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-sm border border-outline-variant bg-surface-variant text-on-surface hover:bg-on-surface hover:text-surface focus:ring-2 focus:ring-primary focus:outline-none"
+			class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-on-surface-variant transition-colors hover:bg-surface hover:text-on-surface focus:ring-2 focus:ring-primary focus:outline-none"
 		>
 			<ListTodo class="size-4" />
 		</button>
@@ -60,7 +60,7 @@
 			type="button"
 			title="Add note"
 			onclick={() => addCard(space.id, column.id, 'note')}
-			class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-sm border border-outline-variant bg-surface-variant text-on-surface hover:bg-on-surface hover:text-surface focus:ring-2 focus:ring-primary focus:outline-none"
+			class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-on-surface-variant transition-colors hover:bg-surface hover:text-on-surface focus:ring-2 focus:ring-primary focus:outline-none"
 		>
 			<FileText class="size-4" />
 		</button>

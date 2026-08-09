@@ -46,7 +46,8 @@
 					aria-checked={todo.done}
 					title={todo.done ? 'Mark as not done' : 'Mark as done'}
 					onclick={() => updateTodo(space.id, column.id, card.id, todo.id, { done: !todo.done })}
-					class="flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-sm border border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary focus:ring-2 focus:ring-primary focus:outline-none"
+					class:accent-fill={todo.done}
+					class="flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-md border border-outline-variant text-on-primary hover:border-primary hover:text-primary focus:ring-2 focus:ring-primary focus:outline-none"
 				>
 					{#if todo.done}
 						<Check class="size-3.5" />
@@ -62,13 +63,13 @@
 							if (e.key === 'Escape') editingId = null;
 						}}
 						onblur={() => commitEdit(todo.id)}
-						class="w-full rounded-sm border border-outline-variant bg-base px-2 py-0.5 text-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary focus:outline-none"
+						class="w-full rounded-md border border-outline-variant bg-base px-2 py-0.5 text-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary focus:outline-none"
 					/>
 				{:else}
 					<button
 						type="button"
 						onclick={() => startEdit(todo.id, todo.text)}
-						class="w-full min-w-0 flex-1 cursor-text rounded-sm px-2 py-0.5 text-left text-sm hover:bg-surface-variant focus:ring-2 focus:ring-primary focus:outline-none"
+						class="w-full min-w-0 flex-1 cursor-text rounded-md px-2 py-0.5 text-left text-sm hover:bg-surface-variant focus:ring-2 focus:ring-primary focus:outline-none"
 						class:text-on-surface-variant={todo.done}
 						class:line-through={todo.done}
 					>
@@ -80,7 +81,7 @@
 					type="button"
 					title="Delete todo"
 					onclick={() => removeTodo(space.id, column.id, card.id, todo.id)}
-					class="flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-sm text-on-surface-variant opacity-0 transition-opacity group-hover:opacity-100 hover:bg-on-surface hover:text-surface focus:opacity-100 focus:ring-2 focus:ring-primary focus:outline-none"
+					class="flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-md text-on-surface-variant opacity-0 transition-opacity group-hover:opacity-100 hover:bg-surface focus:opacity-100 focus:ring-2 focus:ring-primary focus:outline-none"
 				>
 					<Trash2 class="size-3.5" />
 				</button>
@@ -99,12 +100,12 @@
 			type="text"
 			placeholder="Add todo…"
 			bind:value={draft}
-			class="w-full rounded-sm border border-outline-variant bg-base px-2 py-1 text-sm text-on-surface placeholder:text-on-surface-variant focus:border-primary focus:ring-2 focus:ring-primary focus:outline-none"
+			class="w-full rounded-md border border-outline-variant bg-base px-2 py-1 text-sm text-on-surface placeholder:text-on-surface-variant focus:border-primary focus:ring-2 focus:ring-primary focus:outline-none"
 		/>
 		<button
 			type="submit"
 			title="Add todo"
-			class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-sm border border-outline-variant bg-surface-variant text-on-surface hover:bg-on-surface hover:text-surface focus:ring-2 focus:ring-primary focus:outline-none"
+			class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-on-surface-variant transition-colors hover:bg-surface-variant hover:text-on-surface focus:ring-2 focus:ring-primary focus:outline-none"
 		>
 			<Plus class="size-4" />
 		</button>

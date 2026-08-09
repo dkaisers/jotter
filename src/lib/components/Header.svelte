@@ -2,22 +2,22 @@
 	import { Settings } from 'lucide-svelte';
 	import {
 		settings,
-		palettes,
 		modes,
 		fonts,
-		setPalette,
 		setMode,
-		setFont,
-		type Palette,
+		setUiFont,
+		setContentFont,
 		type Mode,
 		type FontId
 	} from '$lib/theme';
+	import Spaces from './Spaces.svelte';
 	import { onMount } from 'svelte';
 
 	let { children } = $props();
 
 	let open = $state(false);
 	let root: HTMLElement | undefined = $state();
+	let mounted = $state(false);
 
 	function closeOnOutside(event: Event) {
 		if (open && root && !root.contains(event.target as Node)) open = false;
@@ -28,6 +28,7 @@
 	}
 
 	onMount(() => {
+		mounted = true;
 		document.addEventListener('click', closeOnOutside);
 		document.addEventListener('keydown', closeOnEscape);
 		return () => {
@@ -37,77 +38,95 @@
 	});
 </script>
 
-<div
-	class="relative mx-auto mt-8 w-[calc(100%-1rem)] max-w-[60rem] border border-outline bg-surface sm:mt-12 sm:w-[calc(100%-2rem)]"
->
-	<span
-		class="absolute top-0 left-3 flex h-7 -translate-y-1/2 items-center border border-outline bg-surface px-2 text-sm font-semibold tracking-tight text-on-surface sm:left-4"
-	>
-		jotter
-	</span>
+<div class="mx-auto w-full max-w-[60rem] px-4 pt-6 sm:px-6 sm:pt-8">
+	<div class="relative" bind:this={root}>
+		<header class="flex items-center justify-between">
+			<h1 class="text-xl font-semibold tracking-tight text-on-surface">jotter</h1>
 
-	<div class="absolute top-0 right-0" bind:this={root}>
-		<button
-			type="button"
-			aria-label="Settings"
-			aria-haspopup="true"
-			aria-expanded={open}
-			onclick={() => (open = !open)}
-			class:bg-on-surface={open}
-			class:text-surface={open}
-			class="absolute top-0 right-2 flex h-7 -translate-y-1/2 cursor-pointer items-center border border-outline bg-surface px-1.5 text-on-surface hover:bg-on-surface hover:text-surface focus:ring-2 focus:ring-outline focus:outline-none sm:right-4"
-		>
-			<Settings class="size-4" />
-		</button>
+			<button
+				type="button"
+				aria-label="Settings"
+				aria-haspopup="true"
+				aria-expanded={open}
+				onclick={() => (open = !open)}
+				class="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg bg-surface text-on-surface-variant shadow-sm transition-colors hover:text-on-surface focus:ring-2 focus:ring-primary focus:outline-none"
+			>
+				<Settings class="size-4" />
+			</button>
+		</header>
 
 		{#if open}
-			<div
-				class="absolute top-2 right-2 z-10 w-60 border border-outline bg-surface-variant sm:right-4"
-			>
-				<div class="px-3 pt-2.5 pb-2">
-					<p class="mb-1 text-xs tracking-widest text-on-surface-variant uppercase">Palette</p>
-					{#each palettes as p (p.value)}
-						<button
-							type="button"
-							onclick={() => setPalette(p.value as Palette)}
-							class:tui-invert={$settings.palette === p.value}
-							class="block w-full px-2 py-1 text-left text-sm text-on-surface hover:bg-on-surface hover:text-surface"
-						>
-							{p.label}
-						</button>
-					{/each}
+			<div class="absolute top-full right-0 z-30 mt-2 w-64 rounded-xl bg-surface p-2 shadow-lg">
+				<div class="p-2">
+					<p
+						class="px-1 pb-1.5 text-xs font-medium tracking-wide text-on-surface-variant uppercase"
+					>
+						Mode
+					</p>
+					<div class="flex gap-1">
+						{#each modes as m (m.value)}
+							<button
+								type="button"
+								onclick={() => setMode(m.value as Mode)}
+								class:accent-fill={$settings.mode === m.value}
+								class="flex-1 cursor-pointer rounded-lg px-2 py-1.5 text-sm text-on-surface hover:bg-surface-variant focus:ring-2 focus:ring-primary focus:outline-none"
+							>
+								{m.label}
+							</button>
+						{/each}
+					</div>
 				</div>
 
-				<div class="border-t border-outline-variant px-3 py-2">
-					<p class="mb-1 text-xs tracking-widest text-on-surface-variant uppercase">Mode</p>
-					{#each modes as m (m.value)}
-						<button
-							type="button"
-							onclick={() => setMode(m.value as Mode)}
-							class:tui-invert={$settings.mode === m.value}
-							class="block w-full px-2 py-1 text-left text-sm text-on-surface hover:bg-on-surface hover:text-surface"
-						>
-							{m.label}
-						</button>
-					{/each}
+				<div class="border-t border-outline-variant p-2">
+					<p
+						class="px-1 pb-1.5 text-xs font-medium tracking-wide text-on-surface-variant uppercase"
+					>
+						UI font
+					</p>
+					<div class="flex gap-1">
+						{#each fonts as f (f.value)}
+							<button
+								type="button"
+								onclick={() => setUiFont(f.value as FontId)}
+								class:accent-fill={$settings.uiFont === f.value}
+								class="flex-1 cursor-pointer rounded-lg px-2 py-1.5 text-sm text-on-surface hover:bg-surface-variant focus:ring-2 focus:ring-primary focus:outline-none"
+							>
+								{f.label}
+							</button>
+						{/each}
+					</div>
 				</div>
 
-				<div class="border-t border-outline-variant px-3 py-2">
-					<p class="mb-1 text-xs tracking-widest text-on-surface-variant uppercase">Font</p>
-					{#each fonts as f (f.value)}
-						<button
-							type="button"
-							onclick={() => setFont(f.value as FontId)}
-							class:tui-invert={$settings.font === f.value}
-							class="block w-full px-2 py-1 text-left text-sm text-on-surface hover:bg-on-surface hover:text-surface"
-						>
-							{f.label}
-						</button>
-					{/each}
+				<div class="border-t border-outline-variant p-2">
+					<p
+						class="px-1 pb-1.5 text-xs font-medium tracking-wide text-on-surface-variant uppercase"
+					>
+						Content font
+					</p>
+					<div class="flex gap-1">
+						{#each fonts as f (f.value)}
+							<button
+								type="button"
+								onclick={() => setContentFont(f.value as FontId)}
+								class:accent-fill={$settings.contentFont === f.value}
+								class="flex-1 cursor-pointer rounded-lg px-2 py-1.5 text-sm text-on-surface hover:bg-surface-variant focus:ring-2 focus:ring-primary focus:outline-none"
+							>
+								{f.label}
+							</button>
+						{/each}
+					</div>
 				</div>
 			</div>
 		{/if}
 	</div>
 
-	<main class="px-4 py-5 sm:px-6 sm:py-8">{@render children()}</main>
+	{#if mounted}
+		<div class="mt-4">
+			<Spaces />
+		</div>
+	{/if}
 </div>
+
+<main class="mx-auto w-full max-w-[60rem] px-4 pt-5 pb-12 sm:px-6 sm:pt-6">
+	{@render children()}
+</main>

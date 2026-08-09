@@ -42,13 +42,13 @@
 	}
 </script>
 
-<div data-card-id={card.id} class="flex flex-col border border-outline bg-surface">
-	<header class="flex shrink-0 items-center gap-1 border-b border-outline-variant px-2 py-1.5">
+<div data-card-id={card.id} class="flex flex-col rounded-lg bg-surface shadow-sm">
+	<header class="flex shrink-0 items-center gap-1 px-3 py-2">
 		<button
 			type="button"
 			title="Drag to move"
 			onpointerdown={(e) => onDragStart(e, card.id)}
-			class="flex h-6 w-5 shrink-0 cursor-grab items-center justify-center rounded-sm text-on-surface-variant hover:bg-on-surface hover:text-surface active:cursor-grabbing"
+			class="flex h-6 w-5 shrink-0 cursor-grab items-center justify-center rounded-md text-on-surface-variant hover:bg-surface-variant active:cursor-grabbing"
 		>
 			<GripVertical class="size-4" />
 		</button>
@@ -62,14 +62,14 @@
 					if (e.key === 'Escape') editingTitle = false;
 				}}
 				onblur={commitRename}
-				class="w-full rounded-sm border border-outline-variant bg-base px-2 py-1 text-sm font-semibold text-on-surface focus:border-primary focus:ring-2 focus:ring-primary focus:outline-none"
+				class="w-full rounded-md border border-outline-variant bg-base px-2 py-1 text-sm font-semibold text-on-surface focus:border-primary focus:ring-2 focus:ring-primary focus:outline-none"
 			/>
 		{:else}
 			<button
 				type="button"
 				title="Rename"
 				onclick={startRename}
-				class="min-w-0 flex-1 cursor-text rounded-sm px-1 py-0.5 text-left text-sm font-semibold text-on-surface hover:bg-surface-variant focus:ring-2 focus:ring-primary focus:outline-none"
+				class="min-w-0 flex-1 cursor-text rounded-md px-1 py-0.5 text-left text-sm font-semibold text-on-surface hover:bg-surface-variant focus:ring-2 focus:ring-primary focus:outline-none"
 			>
 				<span class="block truncate">{card.title}</span>
 			</button>
@@ -79,13 +79,13 @@
 			type="button"
 			title="Delete card"
 			onclick={deleteCard}
-			class="flex h-6 shrink-0 cursor-pointer items-center rounded-sm px-1 text-on-surface-variant hover:bg-on-surface hover:text-surface focus:ring-2 focus:ring-outline focus:outline-none"
+			class="flex h-6 shrink-0 cursor-pointer items-center rounded-md px-1 text-on-surface-variant hover:bg-surface-variant hover:text-on-surface focus:ring-2 focus:ring-primary focus:outline-none"
 		>
 			<Trash2 class="size-4" />
 		</button>
 	</header>
 
-	<div class="min-h-0 flex-1 p-3">
+	<div class="content min-h-0 flex-1 px-3 pb-3">
 		{#if card.type === 'todo'}
 			<TodoList {space} {column} {card} />
 		{:else}
@@ -119,14 +119,14 @@
 				<button
 					type="button"
 					onclick={() => (confirming = false)}
-					class="cursor-pointer rounded-sm border border-outline-variant bg-surface-variant px-3 py-1 text-sm text-on-surface hover:bg-on-surface hover:text-surface focus:ring-2 focus:ring-primary focus:outline-none"
+					class="cursor-pointer rounded-md border border-outline-variant bg-surface-variant px-3 py-1 text-sm text-on-surface hover:bg-surface focus:ring-2 focus:ring-primary focus:outline-none"
 				>
 					Cancel
 				</button>
 				<button
 					type="button"
 					onclick={() => removeCard(space.id, column.id, card.id)}
-					class="tui-invert cursor-pointer rounded-sm px-3 py-1 text-sm font-semibold hover:opacity-80 focus:ring-2 focus:ring-primary focus:outline-none"
+					class="accent-fill cursor-pointer rounded-md px-3 py-1 text-sm font-semibold hover:opacity-80 focus:ring-2 focus:ring-primary focus:outline-none"
 				>
 					Delete
 				</button>

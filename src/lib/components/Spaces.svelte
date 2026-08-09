@@ -85,15 +85,15 @@
 	}
 </script>
 
-<div class="flex items-center gap-2 border-b border-outline-variant pb-2">
+<div class="flex items-end gap-1 border-b border-outline-variant">
 	{#if canLeft || canRight}
-		<div class="flex items-center gap-1">
+		<div class="mb-1 flex items-center gap-1">
 			<button
 				type="button"
 				title="Scroll tabs left"
 				disabled={!canLeft}
 				onclick={() => scrollBy(-1)}
-				class="flex h-6 w-6 cursor-pointer items-center justify-center rounded-sm border border-outline-variant bg-surface-variant text-on-surface-variant hover:bg-on-surface hover:text-surface focus:ring-2 focus:ring-outline focus:outline-none disabled:cursor-default disabled:opacity-40"
+				class="flex h-6 w-6 cursor-pointer items-center justify-center rounded-md text-on-surface-variant hover:bg-surface hover:text-on-surface focus:ring-2 focus:ring-primary focus:outline-none disabled:cursor-default disabled:opacity-40"
 			>
 				<ChevronLeft class="size-4" />
 			</button>
@@ -102,21 +102,21 @@
 				title="Scroll tabs right"
 				disabled={!canRight}
 				onclick={() => scrollBy(1)}
-				class="flex h-6 w-6 cursor-pointer items-center justify-center rounded-sm border border-outline-variant bg-surface-variant text-on-surface-variant hover:bg-on-surface hover:text-surface focus:ring-2 focus:ring-outline focus:outline-none disabled:cursor-default disabled:opacity-40"
+				class="flex h-6 w-6 cursor-pointer items-center justify-center rounded-md text-on-surface-variant hover:bg-surface hover:text-on-surface focus:ring-2 focus:ring-primary focus:outline-none disabled:cursor-default disabled:opacity-40"
 			>
 				<ChevronRight class="size-4" />
 			</button>
 		</div>
 	{/if}
 
-	<div bind:this={scrollEl} class="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
+	<div bind:this={scrollEl} class="flex min-w-0 flex-1 items-end gap-1 overflow-x-auto">
 		{#each $workspace.spaces as space (space.id)}
 			<div
 				data-space-id={space.id}
-				class="flex shrink-0 items-center gap-1 border px-2 py-1 text-sm"
-				class:tui-invert={active?.id === space.id}
-				class:border-outline={active?.id !== space.id}
-				class:bg-surface={active?.id !== space.id}
+				class="flex shrink-0 items-center gap-0.5 rounded-t-md border-b-2 px-2 py-1.5 text-sm"
+				class:bg-surface={active?.id === space.id}
+				class:border-primary={active?.id === space.id}
+				class:border-transparent={active?.id !== space.id}
 			>
 				{#if editingId === space.id}
 					<input
@@ -127,7 +127,7 @@
 							if (e.key === 'Escape') editingId = null;
 						}}
 						onblur={commitRename}
-						class="w-24 rounded-sm border border-outline-variant bg-base px-1 py-0.5 text-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary focus:outline-none"
+						class="w-24 rounded-md border border-outline-variant bg-base px-1 py-0.5 text-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary focus:outline-none"
 					/>
 				{:else}
 					<button
@@ -138,6 +138,8 @@
 						onclick={() => setActiveSpace(space.id)}
 						ondblclick={() => startRename(space.id, space.name)}
 						class="cursor-grab active:cursor-grabbing"
+						class:text-on-surface={active?.id === space.id}
+						class:text-on-surface-variant={active?.id !== space.id}
 					>
 						{space.name}
 					</button>
@@ -151,23 +153,23 @@
 							e.stopPropagation();
 							onCloseClick(space.id);
 						}}
-						class="flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-sm text-on-surface-variant hover:bg-on-surface hover:text-surface focus:ring-2 focus:ring-outline focus:outline-none"
+						class="-mr-1 flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-md text-on-surface-variant hover:bg-surface-variant focus:ring-2 focus:ring-outline focus:outline-none"
 					>
 						<X class="size-3.5" />
 					</button>
 				{/if}
 			</div>
 		{/each}
-	</div>
 
-	<button
-		type="button"
-		title="Add space"
-		onclick={addSpace}
-		class="flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-sm border border-outline-variant bg-surface-variant text-on-surface hover:bg-on-surface hover:text-surface focus:ring-2 focus:ring-primary focus:outline-none"
-	>
-		<Plus class="size-4" />
-	</button>
+		<button
+			type="button"
+			title="Add space"
+			onclick={addSpace}
+			class="mr-2 flex w-6 shrink-0 cursor-pointer items-center justify-center self-stretch rounded-t-md border-b-2 border-transparent text-on-surface-variant transition-colors hover:bg-surface hover:text-on-surface focus:ring-2 focus:ring-primary focus:outline-none"
+		>
+			<Plus class="size-4" />
+		</button>
+	</div>
 </div>
 
 {#if confirmingId}
@@ -195,7 +197,7 @@
 				<button
 					type="button"
 					onclick={() => (confirmingId = null)}
-					class="cursor-pointer rounded-sm border border-outline-variant bg-surface-variant px-3 py-1 text-sm text-on-surface hover:bg-on-surface hover:text-surface focus:ring-2 focus:ring-primary focus:outline-none"
+					class="cursor-pointer rounded-md border border-outline-variant bg-surface-variant px-3 py-1 text-sm text-on-surface hover:bg-surface focus:ring-2 focus:ring-primary focus:outline-none"
 				>
 					Cancel
 				</button>
@@ -205,7 +207,7 @@
 						removeSpace(confirmingId!);
 						confirmingId = null;
 					}}
-					class="tui-invert cursor-pointer rounded-sm px-3 py-1 text-sm font-semibold hover:opacity-80 focus:ring-2 focus:ring-primary focus:outline-none"
+					class="accent-fill cursor-pointer rounded-md px-3 py-1 text-sm font-semibold hover:opacity-80 focus:ring-2 focus:ring-primary focus:outline-none"
 				>
 					Delete
 				</button>

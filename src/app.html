@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-theme="catppuccin-dark">
+<html lang="en" data-theme="dark">
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -7,21 +7,21 @@
 		<script>
 			(() => {
 				var key = 'jotter:theme';
-				var palettes = ['catppuccin', 'solarized'];
 				var modes = ['light', 'dark'];
-				var fonts = ['jetbrains-mono', 'roboto-mono'];
-				var s = { palette: 'catppuccin', mode: 'dark', font: 'jetbrains-mono' };
+				var fonts = ['sans', 'serif', 'mono'];
+				var s = { mode: 'dark', uiFont: 'sans', contentFont: 'serif' };
 				try {
 					var stored = window.localStorage.getItem(key);
 					if (stored) {
 						var parsed = JSON.parse(stored);
-						if (palettes.includes(parsed.palette)) s.palette = parsed.palette;
 						if (modes.includes(parsed.mode)) s.mode = parsed.mode;
-						if (fonts.includes(parsed.font)) s.font = parsed.font;
+						if (fonts.includes(parsed.uiFont)) s.uiFont = parsed.uiFont;
+						if (fonts.includes(parsed.contentFont)) s.contentFont = parsed.contentFont;
 					}
 				} catch (e) {}
-				document.documentElement.setAttribute('data-theme', s.palette + '-' + s.mode);
-				document.documentElement.setAttribute('data-font', s.font);
+				document.documentElement.setAttribute('data-theme', s.mode);
+				document.documentElement.setAttribute('data-ui-font', s.uiFont);
+				document.documentElement.setAttribute('data-content-font', s.contentFont);
 			})();
 		</script>
 		%sveltekit.head%
