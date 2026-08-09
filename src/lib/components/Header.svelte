@@ -45,12 +45,12 @@
 	</div>
 
 	{#if mounted}
-		<div class="mt-4">
+		<div class="mt-5">
 			<Spaces />
 		</div>
 	{/if}
 </div>
 
-<main class="mx-auto w-full max-w-[60rem] flex-1 px-4 pt-5 pb-12 sm:px-6 sm:pt-6">
+<main class="mx-auto w-full max-w-[60rem] flex-1 px-4 pt-6 pb-12 sm:px-6">
 	{@render children()}
 </main>

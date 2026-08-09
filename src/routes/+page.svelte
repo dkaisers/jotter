@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { FileText, ListTodo } from 'lucide-svelte';
+	import { ListTodo, NotepadText } from 'lucide-svelte';
 	import { activeSpace, addColumn, totalSpan, type CardType } from '$lib/workspace';
 	import { TOTAL_UNITS } from '$lib/columnResize';
 	import Column from '$lib/components/Column.svelte';
@@ -19,7 +19,7 @@
 </script>
 
 {#if mounted && space}
-	<div class="workspace-row flex items-start gap-4">
+	<div class="workspace-row flex items-stretch gap-6">
 		{#each cols as column (column.id)}
 			<div class="min-w-0" style={`flex-grow: ${column.span}; flex-basis: 0`}>
 				<Column {space} {column} />
@@ -53,7 +53,7 @@
 							onclick={() => addToEmpty('note')}
 							class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-on-surface-variant transition-colors hover:bg-surface hover:text-on-surface focus:ring-2 focus:ring-primary focus:outline-none"
 						>
-							<FileText class="size-4" />
+							<NotepadText class="size-4" />
 						</button>
 					</div>
 				</div>

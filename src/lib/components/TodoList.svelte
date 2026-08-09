@@ -11,7 +11,12 @@
 	} from '$lib/workspace';
 	import { settings } from '$lib/theme';
 
-	let { space, column, card }: { space: Space; column: Column; card: TodoCard } = $props();
+	let {
+		space,
+		column,
+		card,
+		autofocus = false
+	}: { space: Space; column: Column; card: TodoCard; autofocus?: boolean } = $props();
 
 	let draft = $state('');
 	let editingId: string | null = $state(null);
@@ -76,6 +81,10 @@
 		window.removeEventListener('pointermove', onDragMove);
 		window.removeEventListener('pointerup', onDragEnd);
 	}
+
+	$effect(() => {
+		if (autofocus) draftInput?.focus();
+	});
 </script>
 
 <div class="flex flex-col gap-1">

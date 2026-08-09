@@ -2,10 +2,22 @@
 	import { updateNote, type Column, type NoteCard, type Space } from '$lib/workspace';
 	import { settings } from '$lib/theme';
 
-	let { space, column, card }: { space: Space; column: Column; card: NoteCard } = $props();
+	let {
+		space,
+		column,
+		card,
+		autofocus = false
+	}: { space: Space; column: Column; card: NoteCard; autofocus?: boolean } = $props();
+
+	let area: HTMLTextAreaElement | undefined = $state();
+
+	$effect(() => {
+		if (autofocus) area?.focus();
+	});
 </script>
 
 <textarea
+	bind:this={area}
 	value={card.text}
 	spellcheck={$settings.spellcheck}
 	placeholder="Write a note…"

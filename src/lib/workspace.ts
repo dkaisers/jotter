@@ -255,15 +255,13 @@ export function addColumn(spaceId: string, type: CardType, span: number) {
 	}));
 }
 
-export function addCard(spaceId: string, columnId: string, type: CardType) {
+export function addCard(spaceId: string, columnId: string, type: CardType): string {
+	const card = type === 'todo' ? emptyTodoCard() : emptyNoteCard();
 	updateSpace(spaceId, (s) => ({
 		...s,
-		columns: s.columns.map((c) =>
-			c.id === columnId
-				? { ...c, cards: [...c.cards, type === 'todo' ? emptyTodoCard() : emptyNoteCard()] }
-				: c
-		)
+		columns: s.columns.map((c) => (c.id === columnId ? { ...c, cards: [...c.cards, card] } : c))
 	}));
+	return card.id;
 }
 
 export function removeCard(spaceId: string, columnId: string, cardId: string) {

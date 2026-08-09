@@ -1,12 +1,24 @@
 <script lang="ts">
-	import { FileText, ListTodo } from 'lucide-svelte';
-	import { addCard, moveCard, setColumnSpan, type Column, type Space } from '$lib/workspace';
+	import { ListTodo, NotepadText } from 'lucide-svelte';
+	import {
+		addCard,
+		moveCard,
+		setColumnSpan,
+		type CardType,
+		type Column,
+		type Space
+	} from '$lib/workspace';
 	import { columnResize } from '$lib/columnResize';
 	import Card from './Card.svelte';
 
 	let { space, column }: { space: Space; column: Column } = $props();
 
 	let dragCardId = $state<string | null>(null);
+	let focusCardId = $state<string | null>(null);
+
+	function addCardOfType(type: CardType) {
+		focusCardId = addCard(space.id, column.id, type);
+	}
 
 	function onDragStart(e: PointerEvent, cardId: string) {
 		e.preventDefault();
@@ -41,17 +53,25 @@
 </script>
 
 <div data-column-id={column.id} class="relative flex min-w-0 flex-1 flex-col">
-	<div class="flex flex-col gap-3">
-		{#each column.cards as card (card.id)}
-			<Card {space} {column} {card} {onDragStart} />
-		{/each}
-	</div>
+	{#if column.cards.length === 0}
+		<div
+			class="flex flex-1 flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-outline-variant px-3 py-6"
+		>
+			<span class="text-xs text-on-surface-variant">empty</span>
+		</div>
+	{:else}
+		<div class="flex flex-col gap-3">
+			{#each column.cards as card (card.id)}
+				<Card {space} {column} {card} {onDragStart} autofocus={card.id === focusCardId} />
+			{/each}
+		</div>
+	{/if}
 
 	<div class="mt-3 flex items-center justify-center gap-2">
 		<button
 			type="button"
 			title="Add todo list"
-			onclick={() => addCard(space.id, column.id, 'todo')}
+			onclick={() => addCardOfType('todo')}
 			class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-on-surface-variant transition-colors hover:bg-surface hover:text-on-surface focus:ring-2 focus:ring-primary focus:outline-none"
 		>
 			<ListTodo class="size-4" />
@@ -59,10 +79,10 @@
 		<button
 			type="button"
 			title="Add note"
-			onclick={() => addCard(space.id, column.id, 'note')}
+			onclick={() => addCardOfType('note')}
 			class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-on-surface-variant transition-colors hover:bg-surface hover:text-on-surface focus:ring-2 focus:ring-primary focus:outline-none"
 		>
-			<FileText class="size-4" />
+			<NotepadText class="size-4" />
 		</button>
 	</div>
 

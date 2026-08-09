@@ -11,6 +11,7 @@
 	} from '$lib/workspace';
 	import { onMount } from 'svelte';
 	import Settings from './Settings.svelte';
+	import Help from './Help.svelte';
 
 	let scrollEl: HTMLElement | undefined = $state();
 	let canLeft = $state(false);
@@ -190,6 +191,7 @@
 		</button>
 	</div>
 
+	<Help />
 	<Settings />
 </div>
 

@@ -8,12 +8,14 @@
 		space,
 		column,
 		card,
-		onDragStart
+		onDragStart,
+		autofocus = false
 	}: {
 		space: Space;
 		column: Column;
 		card: Card;
 		onDragStart: (e: PointerEvent, cardId: string) => void;
+		autofocus?: boolean;
 	} = $props();
 
 	let editingTitle = $state(false);
@@ -90,9 +92,9 @@
 
 	<div class="content min-h-0 flex-1 px-3 pt-3 pb-3">
 		{#if card.type === 'todo'}
-			<TodoList {space} {column} {card} />
+			<TodoList {space} {column} {card} {autofocus} />
 		{:else}
-			<NoteArea {space} {column} {card} />
+			<NoteArea {space} {column} {card} {autofocus} />
 		{/if}
 	</div>
 </div>
