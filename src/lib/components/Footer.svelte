@@ -121,9 +121,18 @@
 					href="https://lucide.dev"
 					target="_blank"
 					rel="noopener noreferrer"
-					class="text-primary hover:underline">lucide</a
+					class="text-primary hover:underline">Lucide</a
 				>
 				icons — ISC
+			</li>
+			<li>
+				<a
+					href="https://www.bits-ui.com"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="text-primary hover:underline">Bits UI</a
+				>
+				— MIT
 			</li>
 			<li>
 				<a
