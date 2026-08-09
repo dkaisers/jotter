@@ -2,8 +2,7 @@ import { writable } from 'svelte/store';
 
 export type Palette = 'solarized' | 'catppuccin';
 export type Mode = 'light' | 'dark';
-export type FontId =
-	'inter' | 'roboto' | 'lora' | 'source-serif-4' | 'jetbrains-mono' | 'roboto-mono';
+export type FontId = 'jetbrains-mono' | 'roboto-mono';
 
 export interface Settings {
 	palette: Palette;
@@ -22,16 +21,15 @@ export const palettes: { value: Palette; label: string }[] = [
 	{ value: 'solarized', label: 'Solarized' }
 ];
 
-export const fonts: { value: FontId; label: string; group: string }[] = [
-	{ value: 'inter', label: 'Inter', group: 'Sans-serif' },
-	{ value: 'roboto', label: 'Roboto', group: 'Sans-serif' },
-	{ value: 'lora', label: 'Lora', group: 'Serif' },
-	{ value: 'source-serif-4', label: 'Source Serif 4', group: 'Serif' },
-	{ value: 'jetbrains-mono', label: 'JetBrains Mono', group: 'Monospace' },
-	{ value: 'roboto-mono', label: 'Roboto Mono', group: 'Monospace' }
+export const modes: { value: Mode; label: string }[] = [
+	{ value: 'dark', label: 'dark' },
+	{ value: 'light', label: 'light' }
 ];
 
-export const fontGroups = [...new Set(fonts.map((f) => f.group))];
+export const fonts: { value: FontId; label: string }[] = [
+	{ value: 'jetbrains-mono', label: 'JetBrains Mono' },
+	{ value: 'roboto-mono', label: 'Roboto Mono' }
+];
 
 const STORAGE_KEY = 'jotter:theme';
 
@@ -89,9 +87,9 @@ export function setPalette(palette: Palette) {
 	});
 }
 
-export function toggleMode() {
+export function setMode(mode: Mode) {
 	settings.update((s) => {
-		const next: Settings = { ...s, mode: s.mode === 'dark' ? 'light' : 'dark' };
+		const next: Settings = { ...s, mode };
 		applySettings(next);
 		return next;
 	});

@@ -3,20 +3,21 @@
 	import {
 		settings,
 		palettes,
+		modes,
 		fonts,
-		fontGroups,
 		setPalette,
+		setMode,
 		setFont,
-		toggleMode,
-		type FontId,
-		type Palette
+		type Palette,
+		type Mode,
+		type FontId
 	} from '$lib/theme';
 	import { onMount } from 'svelte';
 
+	let { children } = $props();
+
 	let open = $state(false);
 	let root: HTMLElement | undefined = $state();
-
-	const isDark = $derived($settings.mode === 'dark');
 
 	function closeOnOutside(event: Event) {
 		if (open && root && !root.contains(event.target as Node)) open = false;
@@ -36,77 +37,77 @@
 	});
 </script>
 
-<header
-	class="mx-auto mt-2 w-[calc(100%-1rem)] max-w-[60rem] rounded-xl bg-surface px-4 py-3 shadow-lg ring-1 ring-outline-variant sm:mt-4 sm:w-[calc(100%-2rem)] sm:rounded-2xl sm:px-6"
-	style="transition: background-color 150ms ease, color 150ms ease, box-shadow 150ms ease;"
+<div
+	class="relative mx-auto mt-4 w-[calc(100%-1rem)] max-w-[60rem] border border-outline bg-surface sm:mt-6 sm:w-[calc(100%-2rem)]"
 >
-	<div class="flex items-center justify-between gap-4">
-		<span class="text-lg font-semibold tracking-tight text-on-surface">jotter</span>
+	<span
+		class="absolute top-0 left-3 -translate-y-1/2 bg-base px-2 text-sm font-semibold tracking-tight text-on-surface sm:left-4"
+	>
+		jotter
+	</span>
 
-		<div class="relative" bind:this={root}>
-			<button
-				type="button"
-				aria-label="Settings"
-				aria-haspopup="true"
-				aria-expanded={open}
-				onclick={() => (open = !open)}
-				class="rounded-lg bg-surface-variant p-2 text-on-surface transition-colors duration-150 hover:text-primary focus:ring-2 focus:ring-primary focus:outline-none"
+	<div class="absolute top-0 right-0" bind:this={root}>
+		<button
+			type="button"
+			aria-label="Settings"
+			aria-haspopup="true"
+			aria-expanded={open}
+			onclick={() => (open = !open)}
+			class:bg-on-surface={open}
+			class:text-surface={open}
+			class="absolute top-0 right-2 -translate-y-1/2 bg-base p-1.5 text-on-surface hover:bg-on-surface hover:text-surface focus:ring-2 focus:ring-outline focus:outline-none sm:right-4"
+		>
+			<Settings class="size-4" />
+		</button>
+
+		{#if open}
+			<div
+				class="absolute top-2 right-2 z-10 w-60 border border-outline bg-surface-variant sm:right-4"
 			>
-				<Settings class="size-5" />
-			</button>
-
-			{#if open}
-				<div
-					class="absolute right-0 z-10 mt-2 w-64 rounded-xl bg-surface p-4 shadow-xl ring-1 ring-outline-variant"
-					style="transition: background-color 150ms ease, color 150ms ease;"
-				>
-					<div class="space-y-4">
-						<div class="flex items-center justify-between gap-3">
-							<label for="palette-select" class="text-sm font-medium text-on-surface">Palette</label
-							>
-							<select
-								id="palette-select"
-								value={$settings.palette}
-								onchange={(e) => setPalette(e.currentTarget.value as Palette)}
-								class="rounded-lg border-0 bg-surface-variant px-2.5 py-1 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary focus:outline-none"
-							>
-								{#each palettes as palette (palette.value)}
-									<option value={palette.value}>{palette.label}</option>
-								{/each}
-							</select>
-						</div>
-
-						<div class="flex items-center justify-between gap-3">
-							<span class="text-sm font-medium text-on-surface">Mode</span>
-							<button
-								type="button"
-								onclick={toggleMode}
-								class="rounded-lg bg-surface-variant px-2.5 py-1 text-sm font-medium text-on-surface transition-colors duration-150 hover:text-primary focus:ring-2 focus:ring-primary focus:outline-none"
-							>
-								{isDark ? 'Dark' : 'Light'}
-							</button>
-						</div>
-
-						<div class="flex items-center justify-between gap-3">
-							<label for="font-select" class="text-sm font-medium text-on-surface">Font</label>
-							<select
-								id="font-select"
-								value={$settings.font}
-								onchange={(e) => setFont(e.currentTarget.value as FontId)}
-								class="rounded-lg border-0 bg-surface-variant px-2.5 py-1 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary focus:outline-none"
-							>
-								{#each fontGroups as group (group)}
-									<optgroup label={group}>
-										{#each fonts.filter((f) => f.group === group) as font (font.value)}
-											<option value={font.value}>{font.label}</option>
-										{/each}
-									</optgroup>
-								{/each}
-							</select>
-						</div>
-					</div>
+				<div class="px-3 pt-2.5 pb-2">
+					<p class="mb-1 text-xs tracking-widest text-on-surface-variant uppercase">Palette</p>
+					{#each palettes as p (p.value)}
+						<button
+							type="button"
+							onclick={() => setPalette(p.value as Palette)}
+							class:tui-invert={$settings.palette === p.value}
+							class="block w-full px-2 py-1 text-left text-sm text-on-surface hover:bg-on-surface hover:text-surface"
+						>
+							{p.label}
+						</button>
+					{/each}
 				</div>
-			{/if}
-		</div>
+
+				<div class="border-t border-outline-variant px-3 py-2">
+					<p class="mb-1 text-xs tracking-widest text-on-surface-variant uppercase">Mode</p>
+					{#each modes as m (m.value)}
+						<button
+							type="button"
+							onclick={() => setMode(m.value as Mode)}
+							class:tui-invert={$settings.mode === m.value}
+							class="block w-full px-2 py-1 text-left text-sm text-on-surface hover:bg-on-surface hover:text-surface"
+						>
+							{m.label}
+						</button>
+					{/each}
+				</div>
+
+				<div class="border-t border-outline-variant px-3 py-2">
+					<p class="mb-1 text-xs tracking-widest text-on-surface-variant uppercase">Font</p>
+					{#each fonts as f (f.value)}
+						<button
+							type="button"
+							onclick={() => setFont(f.value as FontId)}
+							class:tui-invert={$settings.font === f.value}
+							class="block w-full px-2 py-1 text-left text-sm text-on-surface hover:bg-on-surface hover:text-surface"
+						>
+							{f.label}
+						</button>
+					{/each}
+				</div>
+			</div>
+		{/if}
 	</div>
-</header>
+
+	<main class="px-4 py-5 sm:px-6 sm:py-8">{@render children()}</main>
+</div>

@@ -1,10 +1,6 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
-@import '@fontsource-variable/inter';
-@import '@fontsource-variable/roboto';
-@import '@fontsource-variable/lora';
-@import '@fontsource-variable/source-serif-4';
 @import '@fontsource-variable/jetbrains-mono';
 @import '@fontsource-variable/roboto-mono';
 
@@ -25,22 +21,6 @@
 	--font-sans: var(--font-active);
 	--font-serif: var(--font-active);
 	--font-mono: var(--font-active);
-}
-
-[data-font='inter'] {
-	--font-active: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
-}
-
-[data-font='roboto'] {
-	--font-active: 'Roboto Variable', ui-sans-serif, system-ui, sans-serif;
-}
-
-[data-font='lora'] {
-	--font-active: 'Lora Variable', Georgia, 'Times New Roman', serif;
-}
-
-[data-font='source-serif-4'] {
-	--font-active: 'Source Serif 4 Variable', Georgia, 'Times New Roman', serif;
 }
 
 [data-font='jetbrains-mono'] {
@@ -129,9 +109,6 @@
 		background-color: var(--base);
 		color: var(--on-surface);
 		font-family: var(--font-active);
-		transition:
-			background-color 150ms ease,
-			color 150ms ease;
 	}
 }
 
@@ -152,4 +129,9 @@
 	--tw-prose-pre-bg: var(--surface-variant);
 	--tw-prose-th-borders: var(--outline-variant);
 	--tw-prose-td-borders: var(--outline-variant);
+}
+
+.tui-invert {
+	background-color: var(--on-surface);
+	color: var(--surface);
 }
