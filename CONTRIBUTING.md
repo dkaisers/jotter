@@ -36,6 +36,8 @@ Run `bun run format` to fix formatting issues.
 
 - Svelte 5 runes only (`$state`, `$props`, `$derived`, ...)
 - TypeScript throughout; new code should be typed
+- Use bits-ui for dialogs, switches, and segmented controls; style them with
+  Tailwind via `data-state` attributes
 - Style with the existing Tailwind classes — no new CSS unless needed
 - No comments unless they explain something non-obvious
 
