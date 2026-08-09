@@ -1,15 +1,22 @@
 <script lang="ts">
 	import { Check, Plus, Trash2 } from 'lucide-svelte';
-	import { addTodo, removeTodo, updateTodo, type Column, type TodoCard } from '$lib/workspace';
+	import {
+		addTodo,
+		removeTodo,
+		updateTodo,
+		type Column,
+		type Space,
+		type TodoCard
+	} from '$lib/workspace';
 
-	let { column, card }: { column: Column; card: TodoCard } = $props();
+	let { space, column, card }: { space: Space; column: Column; card: TodoCard } = $props();
 
 	let draft = $state('');
 	let editingId: string | null = $state(null);
 	let draftEdit = $state('');
 
 	function submit() {
-		addTodo(column.id, card.id, draft);
+		addTodo(space.id, column.id, card.id, draft);
 		draft = '';
 	}
 
@@ -21,9 +28,9 @@
 	function commitEdit(todoId: string) {
 		const text = draftEdit.trim();
 		if (text) {
-			updateTodo(column.id, card.id, todoId, { text });
+			updateTodo(space.id, column.id, card.id, todoId, { text });
 		} else {
-			removeTodo(column.id, card.id, todoId);
+			removeTodo(space.id, column.id, card.id, todoId);
 		}
 		editingId = null;
 	}
@@ -38,7 +45,7 @@
 					role="checkbox"
 					aria-checked={todo.done}
 					title={todo.done ? 'Mark as not done' : 'Mark as done'}
-					onclick={() => updateTodo(column.id, card.id, todo.id, { done: !todo.done })}
+					onclick={() => updateTodo(space.id, column.id, card.id, todo.id, { done: !todo.done })}
 					class="flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-sm border border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary focus:ring-2 focus:ring-primary focus:outline-none"
 				>
 					{#if todo.done}
@@ -72,7 +79,7 @@
 				<button
 					type="button"
 					title="Delete todo"
-					onclick={() => removeTodo(column.id, card.id, todo.id)}
+					onclick={() => removeTodo(space.id, column.id, card.id, todo.id)}
 					class="flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-sm text-on-surface-variant opacity-0 transition-opacity group-hover:opacity-100 hover:bg-on-surface hover:text-surface focus:opacity-100 focus:ring-2 focus:ring-primary focus:outline-none"
 				>
 					<Trash2 class="size-3.5" />

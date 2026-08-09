@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+import { writable, derived } from 'svelte/store';
 
 export type CardType = 'todo' | 'note';
 
@@ -32,9 +32,21 @@ export interface Column {
 	cards: Card[];
 }
 
+export interface Space {
+	id: string;
+	name: string;
+	columns: Column[];
+}
+
+export interface Workspace {
+	spaces: Space[];
+	activeId: string;
+}
+
 export const TOTAL_UNITS = 8;
 
-const STORAGE_KEY = 'jotter:workspace';
+const STORAGE_KEY = 'jotter:spaces';
+const LEGACY_KEY = 'jotter:workspace';
 
 function newId(): string {
 	return crypto.randomUUID();
@@ -55,7 +67,7 @@ function defaultColumns(): Column[] {
 	];
 }
 
-function sanitize(raw: unknown): Column[] {
+function sanitizeColumns(raw: unknown): Column[] {
 	if (!Array.isArray(raw)) return defaultColumns();
 	const cols: Column[] = [];
 	for (const item of raw) {
@@ -105,66 +117,175 @@ function clampSpan(v: unknown): number {
 	return Math.min(TOTAL_UNITS, Math.max(1, Math.round(n)));
 }
 
-function initialColumns(): Column[] {
-	if (typeof document === 'undefined') return defaultColumns();
-	try {
-		const raw = window.localStorage.getItem(STORAGE_KEY);
-		return raw ? sanitize(JSON.parse(raw)) : defaultColumns();
-	} catch {
-		return defaultColumns();
-	}
+function defaultSpace(): Space {
+	return { id: newId(), name: 'Unnamed', columns: defaultColumns() };
 }
 
-export const columns = writable<Column[]>(initialColumns());
+function sanitizeSpace(raw: unknown): Space | null {
+	if (!raw || typeof raw !== 'object') return null;
+	const it = raw as Record<string, unknown>;
+	return {
+		id: typeof it.id === 'string' ? it.id : newId(),
+		name: typeof it.name === 'string' ? it.name : 'Unnamed',
+		columns: sanitizeColumns(it.columns)
+	};
+}
 
-columns.subscribe((cols) => {
+function initialWorkspace(): Workspace {
+	if (typeof document === 'undefined') return { spaces: [defaultSpace()], activeId: '' };
+	try {
+		const raw = window.localStorage.getItem(STORAGE_KEY);
+		if (raw) {
+			const parsed = JSON.parse(raw);
+			if (parsed && typeof parsed === 'object' && Array.isArray(parsed.spaces)) {
+				const spaces = (parsed.spaces as unknown[])
+					.map((s) => sanitizeSpace(s))
+					.filter((s): s is Space => !!s);
+				if (spaces.length > 0) {
+					const activeId =
+						typeof parsed.activeId === 'string' && spaces.some((s) => s.id === parsed.activeId)
+							? parsed.activeId
+							: spaces[0].id;
+					return { spaces, activeId };
+				}
+			}
+		}
+		// migrate legacy single-workspace blob
+		const legacy = window.localStorage.getItem(LEGACY_KEY);
+		if (legacy) {
+			const space: Space = {
+				id: newId(),
+				name: 'Unnamed',
+				columns: sanitizeColumns(JSON.parse(legacy))
+			};
+			return { spaces: [space], activeId: space.id };
+		}
+	} catch {
+		// fall through to default
+	}
+	const s = defaultSpace();
+	return { spaces: [s], activeId: s.id };
+}
+
+export const workspace = writable<Workspace>(initialWorkspace());
+
+workspace.subscribe((w) => {
 	if (typeof document === 'undefined') return;
 	try {
-		window.localStorage.setItem(STORAGE_KEY, JSON.stringify(cols));
+		window.localStorage.setItem(STORAGE_KEY, JSON.stringify(w));
+		window.localStorage.removeItem(LEGACY_KEY);
 	} catch {
 		// storage unavailable, ignore
 	}
 });
 
+export const activeSpace = derived(workspace, (w) => {
+	return w.spaces.find((s) => s.id === w.activeId) ?? w.spaces[0];
+});
+
+function updateSpace(spaceId: string, fn: (space: Space) => Space) {
+	workspace.update((w) => ({
+		...w,
+		spaces: w.spaces.map((s) => (s.id === spaceId ? fn(s) : s))
+	}));
+}
+
 export function totalSpan(cols: Column[]): number {
 	return cols.reduce((sum, c) => sum + c.span, 0);
 }
 
-export function addColumn(type: CardType, span: number) {
-	columns.update((cols) => [
-		...cols,
-		{
-			id: newId(),
-			span: Math.min(TOTAL_UNITS, Math.max(1, span)),
-			cards: [type === 'todo' ? emptyTodoCard() : emptyNoteCard()]
-		}
-	]);
+// ---- space-level operations ----
+
+export function addSpace() {
+	workspace.update((w) => {
+		const s = { id: newId(), name: 'Unnamed', columns: [] as Column[] };
+		return { spaces: [...w.spaces, s], activeId: s.id };
+	});
 }
 
-export function addCard(columnId: string, type: CardType) {
-	columns.update((cols) =>
-		cols.map((c) =>
+export function removeSpace(spaceId: string) {
+	workspace.update((w) => {
+		if (w.spaces.length <= 1) return w;
+		const idx = w.spaces.findIndex((s) => s.id === spaceId);
+		if (idx === -1) return w;
+		const spaces = w.spaces.filter((s) => s.id !== spaceId);
+		let activeId = w.activeId;
+		if (activeId === spaceId) {
+			activeId = spaces[Math.min(idx, spaces.length - 1)].id;
+		}
+		return { spaces, activeId };
+	});
+}
+
+export function renameSpace(spaceId: string, name: string) {
+	updateSpace(spaceId, (s) => ({ ...s, name: name.trim() || 'Unnamed' }));
+}
+
+export function setActiveSpace(spaceId: string) {
+	workspace.update((w) =>
+		w.spaces.some((s) => s.id === spaceId) ? { ...w, activeId: spaceId } : w
+	);
+}
+
+export function reorderSpace(fromId: string, toId: string) {
+	workspace.update((w) => {
+		const from = w.spaces.findIndex((s) => s.id === fromId);
+		const to = w.spaces.findIndex((s) => s.id === toId);
+		if (from === -1 || to === -1 || from === to) return w;
+		const spaces = [...w.spaces];
+		const [moved] = spaces.splice(from, 1);
+		spaces.splice(from < to ? to - 1 : to, 0, moved);
+		return { ...w, spaces };
+	});
+}
+
+// ---- column/card operations (target a space by its id) ----
+
+export function addColumn(spaceId: string, type: CardType, span: number) {
+	updateSpace(spaceId, (s) => ({
+		...s,
+		columns: [
+			...s.columns,
+			{
+				id: newId(),
+				span: Math.min(TOTAL_UNITS, Math.max(1, span)),
+				cards: [type === 'todo' ? emptyTodoCard() : emptyNoteCard()]
+			}
+		]
+	}));
+}
+
+export function addCard(spaceId: string, columnId: string, type: CardType) {
+	updateSpace(spaceId, (s) => ({
+		...s,
+		columns: s.columns.map((c) =>
 			c.id === columnId
 				? { ...c, cards: [...c.cards, type === 'todo' ? emptyTodoCard() : emptyNoteCard()] }
 				: c
 		)
-	);
+	}));
 }
 
-export function removeCard(columnId: string, cardId: string) {
-	columns.update((cols) =>
-		cols.map((c) =>
+export function removeCard(spaceId: string, columnId: string, cardId: string) {
+	updateSpace(spaceId, (s) => ({
+		...s,
+		columns: s.columns.map((c) =>
 			c.id === columnId ? { ...c, cards: c.cards.filter((x) => x.id !== cardId) } : c
 		)
-	);
+	}));
 }
 
 /** Moves a card to a column at an index. Returns false if source/target are missing. */
-export function moveCard(cardId: string, toColumnId: string, index: number): boolean {
+export function moveCard(
+	spaceId: string,
+	cardId: string,
+	toColumnId: string,
+	index: number
+): boolean {
 	let ok = false;
-	columns.update((cols) => {
+	updateSpace(spaceId, (s) => {
 		let card: Card | undefined;
-		const without = cols.map((c) => {
+		const without = s.columns.map((c) => {
 			const found = c.cards.find((x) => x.id === cardId);
 			if (found) {
 				card = found;
@@ -172,7 +293,7 @@ export function moveCard(cardId: string, toColumnId: string, index: number): boo
 			}
 			return c;
 		});
-		if (!card) return cols;
+		if (!card) return s;
 		const next = without.map((c) => {
 			if (c.id !== toColumnId) return c;
 			const cards = [...c.cards];
@@ -181,42 +302,48 @@ export function moveCard(cardId: string, toColumnId: string, index: number): boo
 			return { ...c, cards };
 		});
 		ok = next.some((c) => c.id === toColumnId);
-		return next;
+		return { ...s, columns: next };
 	});
 	return ok;
 }
 
 /** Resizes a column's span. Freed space becomes trailing empty column; growth is capped by available space. */
-export function setColumnSpan(columnId: string, newSpan: number) {
-	columns.update((cols) => {
-		const idx = cols.findIndex((c) => c.id === columnId);
-		if (idx === -1) return cols;
-		const col = cols[idx];
-		const usedByOthers = totalSpan(cols) - col.span;
+export function setColumnSpan(spaceId: string, columnId: string, newSpan: number) {
+	updateSpace(spaceId, (s) => {
+		const idx = s.columns.findIndex((c) => c.id === columnId);
+		if (idx === -1) return s;
+		const col = s.columns[idx];
+		const usedByOthers = totalSpan(s.columns) - col.span;
 		const available = TOTAL_UNITS - usedByOthers;
 		const span = Math.min(available, Math.max(1, Math.round(newSpan)));
-		return cols.map((c, i) => (i === idx ? { ...c, span } : c));
+		return {
+			...s,
+			columns: s.columns.map((c, i) => (i === idx ? { ...c, span } : c))
+		};
 	});
 }
 
-export function setCardTitle(columnId: string, cardId: string, title: string) {
-	columns.update((cols) =>
-		cols.map((c) =>
+export function setCardTitle(spaceId: string, columnId: string, cardId: string, title: string) {
+	updateSpace(spaceId, (s) => ({
+		...s,
+		columns: s.columns.map((c) =>
 			c.id === columnId
 				? { ...c, cards: c.cards.map((x) => (x.id === cardId ? { ...x, title } : x)) }
 				: c
 		)
-	);
+	}));
 }
 
 export function updateTodo(
+	spaceId: string,
 	columnId: string,
 	cardId: string,
 	todoId: string,
 	patch: Partial<TodoItem>
 ) {
-	columns.update((cols) =>
-		cols.map((c) =>
+	updateSpace(spaceId, (s) => ({
+		...s,
+		columns: s.columns.map((c) =>
 			c.id === columnId
 				? {
 						...c,
@@ -228,14 +355,15 @@ export function updateTodo(
 					}
 				: c
 		)
-	);
+	}));
 }
 
-export function addTodo(columnId: string, cardId: string, text: string) {
+export function addTodo(spaceId: string, columnId: string, cardId: string, text: string) {
 	const trimmed = text.trim();
 	if (!trimmed) return;
-	columns.update((cols) =>
-		cols.map((c) =>
+	updateSpace(spaceId, (s) => ({
+		...s,
+		columns: s.columns.map((c) =>
 			c.id === columnId
 				? {
 						...c,
@@ -247,12 +375,13 @@ export function addTodo(columnId: string, cardId: string, text: string) {
 					}
 				: c
 		)
-	);
+	}));
 }
 
-export function removeTodo(columnId: string, cardId: string, todoId: string) {
-	columns.update((cols) =>
-		cols.map((c) =>
+export function removeTodo(spaceId: string, columnId: string, cardId: string, todoId: string) {
+	updateSpace(spaceId, (s) => ({
+		...s,
+		columns: s.columns.map((c) =>
 			c.id === columnId
 				? {
 						...c,
@@ -264,12 +393,13 @@ export function removeTodo(columnId: string, cardId: string, todoId: string) {
 					}
 				: c
 		)
-	);
+	}));
 }
 
-export function updateNote(columnId: string, cardId: string, text: string) {
-	columns.update((cols) =>
-		cols.map((c) =>
+export function updateNote(spaceId: string, columnId: string, cardId: string, text: string) {
+	updateSpace(spaceId, (s) => ({
+		...s,
+		columns: s.columns.map((c) =>
 			c.id === columnId
 				? {
 						...c,
@@ -277,5 +407,5 @@ export function updateNote(columnId: string, cardId: string, text: string) {
 					}
 				: c
 		)
-	);
+	}));
 }

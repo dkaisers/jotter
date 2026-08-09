@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { FileText, ListTodo } from 'lucide-svelte';
-	import { addCard, moveCard, setColumnSpan, type Column } from '$lib/workspace';
+	import { addCard, moveCard, setColumnSpan, type Column, type Space } from '$lib/workspace';
 	import { columnResize } from '$lib/columnResize';
 	import Card from './Card.svelte';
 
-	let { column }: { column: Column } = $props();
+	let { space, column }: { space: Space; column: Column } = $props();
 
 	let dragCardId = $state<string | null>(null);
 
@@ -30,7 +30,7 @@
 				break;
 			}
 		}
-		moveCard(dragCardId, targetColumnId, index);
+		moveCard(space.id, dragCardId, targetColumnId, index);
 	}
 
 	function onDragEnd() {
@@ -43,7 +43,7 @@
 <div data-column-id={column.id} class="relative flex min-w-0 flex-1 flex-col">
 	<div class="flex flex-col gap-3">
 		{#each column.cards as card (card.id)}
-			<Card {column} {card} {onDragStart} />
+			<Card {space} {column} {card} {onDragStart} />
 		{/each}
 	</div>
 
@@ -51,7 +51,7 @@
 		<button
 			type="button"
 			title="Add todo list"
-			onclick={() => addCard(column.id, 'todo')}
+			onclick={() => addCard(space.id, column.id, 'todo')}
 			class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-sm border border-outline-variant bg-surface-variant text-on-surface hover:bg-on-surface hover:text-surface focus:ring-2 focus:ring-primary focus:outline-none"
 		>
 			<ListTodo class="size-4" />
@@ -59,7 +59,7 @@
 		<button
 			type="button"
 			title="Add note"
-			onclick={() => addCard(column.id, 'note')}
+			onclick={() => addCard(space.id, column.id, 'note')}
 			class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-sm border border-outline-variant bg-surface-variant text-on-surface hover:bg-on-surface hover:text-surface focus:ring-2 focus:ring-primary focus:outline-none"
 		>
 			<FileText class="size-4" />
@@ -70,7 +70,7 @@
 		use:columnResize={{
 			container: () => document.querySelector('.workspace-row') as HTMLElement | null,
 			getSpan: () => column.span,
-			onResize: (span) => setColumnSpan(column.id, span)
+			onResize: (span) => setColumnSpan(space.id, column.id, span)
 		}}
 		class="absolute inset-y-0 -right-1 z-20 w-2 cursor-col-resize hover:bg-outline-variant"
 	></div>

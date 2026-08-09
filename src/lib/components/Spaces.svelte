@@ -1,0 +1,215 @@
+<script lang="ts">
+	import { ChevronLeft, ChevronRight, Plus, X } from 'lucide-svelte';
+	import {
+		activeSpace,
+		addSpace,
+		removeSpace,
+		renameSpace,
+		reorderSpace,
+		setActiveSpace,
+		workspace
+	} from '$lib/workspace';
+	import { onMount } from 'svelte';
+
+	let scrollEl: HTMLElement | undefined = $state();
+	let canLeft = $state(false);
+	let canRight = $state(false);
+	let editingId: string | null = $state(null);
+	let nameDraft = $state('');
+	let confirmingId: string | null = $state(null);
+	let dragId: string | null = $state(null);
+
+	const active = $derived($activeSpace);
+
+	function updateArrows() {
+		if (!scrollEl) return;
+		canLeft = scrollEl.scrollLeft > 0;
+		canRight = scrollEl.scrollLeft + scrollEl.clientWidth < scrollEl.scrollWidth - 1;
+	}
+
+	onMount(() => {
+		updateArrows();
+		const el = scrollEl;
+		el?.addEventListener('scroll', updateArrows, { passive: true });
+		return () => el?.removeEventListener('scroll', updateArrows);
+	});
+
+	function scrollBy(dir: -1 | 1) {
+		scrollEl?.scrollBy({ left: dir * 180, behavior: 'smooth' });
+	}
+
+	function startRename(spaceId: string, name: string) {
+		editingId = spaceId;
+		nameDraft = name;
+	}
+
+	function commitRename() {
+		if (editingId) renameSpace(editingId, nameDraft);
+		editingId = null;
+	}
+
+	function onCloseClick(spaceId: string) {
+		const s = $workspace.spaces.find((x) => x.id === spaceId);
+		const hasContent = s && s.columns.some((c) => c.cards.length > 0);
+		if (hasContent) {
+			confirmingId = spaceId;
+		} else {
+			removeSpace(spaceId);
+		}
+	}
+
+	function onDragStart(e: PointerEvent, spaceId: string) {
+		e.preventDefault();
+		dragId = spaceId;
+		window.addEventListener('pointermove', onDragMove);
+		window.addEventListener('pointerup', onDragEnd);
+	}
+
+	function onDragMove(e: PointerEvent) {
+		if (!dragId) return;
+		const el = document.elementFromPoint(e.clientX, e.clientY);
+		const target = el?.closest('[data-space-id]') as HTMLElement | null;
+		if (!target) return;
+		const targetId = target.dataset.spaceId!;
+		if (targetId !== dragId) reorderSpace(dragId, targetId);
+	}
+
+	function onDragEnd() {
+		dragId = null;
+		window.removeEventListener('pointermove', onDragMove);
+		window.removeEventListener('pointerup', onDragEnd);
+	}
+
+	function nameOf(id: string | null): string {
+		return $workspace.spaces.find((s) => s.id === id)?.name ?? '';
+	}
+</script>
+
+<div class="flex items-center gap-2 border-b border-outline-variant pb-2">
+	{#if canLeft || canRight}
+		<div class="flex items-center gap-1">
+			<button
+				type="button"
+				title="Scroll tabs left"
+				disabled={!canLeft}
+				onclick={() => scrollBy(-1)}
+				class="flex h-6 w-6 cursor-pointer items-center justify-center rounded-sm border border-outline-variant bg-surface-variant text-on-surface-variant hover:bg-on-surface hover:text-surface focus:ring-2 focus:ring-outline focus:outline-none disabled:cursor-default disabled:opacity-40"
+			>
+				<ChevronLeft class="size-4" />
+			</button>
+			<button
+				type="button"
+				title="Scroll tabs right"
+				disabled={!canRight}
+				onclick={() => scrollBy(1)}
+				class="flex h-6 w-6 cursor-pointer items-center justify-center rounded-sm border border-outline-variant bg-surface-variant text-on-surface-variant hover:bg-on-surface hover:text-surface focus:ring-2 focus:ring-outline focus:outline-none disabled:cursor-default disabled:opacity-40"
+			>
+				<ChevronRight class="size-4" />
+			</button>
+		</div>
+	{/if}
+
+	<div bind:this={scrollEl} class="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
+		{#each $workspace.spaces as space (space.id)}
+			<div
+				data-space-id={space.id}
+				class="flex shrink-0 items-center gap-1 border px-2 py-1 text-sm"
+				class:tui-invert={active?.id === space.id}
+				class:border-outline={active?.id !== space.id}
+				class:bg-surface={active?.id !== space.id}
+			>
+				{#if editingId === space.id}
+					<input
+						type="text"
+						bind:value={nameDraft}
+						onkeydown={(e) => {
+							if (e.key === 'Enter') commitRename();
+							if (e.key === 'Escape') editingId = null;
+						}}
+						onblur={commitRename}
+						class="w-24 rounded-sm border border-outline-variant bg-base px-1 py-0.5 text-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary focus:outline-none"
+					/>
+				{:else}
+					<button
+						type="button"
+						role="tab"
+						aria-selected={active?.id === space.id}
+						onpointerdown={(e) => onDragStart(e, space.id)}
+						onclick={() => setActiveSpace(space.id)}
+						ondblclick={() => startRename(space.id, space.name)}
+						class="cursor-grab active:cursor-grabbing"
+					>
+						{space.name}
+					</button>
+				{/if}
+
+				{#if $workspace.spaces.length > 1}
+					<button
+						type="button"
+						title="Close space"
+						onclick={(e) => {
+							e.stopPropagation();
+							onCloseClick(space.id);
+						}}
+						class="flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-sm text-on-surface-variant hover:bg-on-surface hover:text-surface focus:ring-2 focus:ring-outline focus:outline-none"
+					>
+						<X class="size-3.5" />
+					</button>
+				{/if}
+			</div>
+		{/each}
+	</div>
+
+	<button
+		type="button"
+		title="Add space"
+		onclick={addSpace}
+		class="flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-sm border border-outline-variant bg-surface-variant text-on-surface hover:bg-on-surface hover:text-surface focus:ring-2 focus:ring-primary focus:outline-none"
+	>
+		<Plus class="size-4" />
+	</button>
+</div>
+
+{#if confirmingId}
+	<div
+		class="fixed inset-0 z-50 flex items-center justify-center bg-base/60 p-4"
+		role="dialog"
+		aria-modal="true"
+		aria-label="Delete space"
+		tabindex="-1"
+		onkeydown={(e) => {
+			if (e.key === 'Escape') confirmingId = null;
+		}}
+		onclick={(e) => {
+			if (e.target === e.currentTarget) confirmingId = null;
+		}}
+	>
+		<div class="w-72 border border-outline bg-surface shadow-xl">
+			<div class="border-b border-outline-variant px-4 py-3">
+				<h2 class="text-sm font-semibold text-on-surface">Delete “{nameOf(confirmingId)}”?</h2>
+			</div>
+			<div class="px-4 py-3 text-sm text-on-surface-variant">
+				This removes the space and everything in it. This can't be undone.
+			</div>
+			<div class="flex justify-end gap-2 border-t border-outline-variant px-4 py-3">
+				<button
+					type="button"
+					onclick={() => (confirmingId = null)}
+					class="cursor-pointer rounded-sm border border-outline-variant bg-surface-variant px-3 py-1 text-sm text-on-surface hover:bg-on-surface hover:text-surface focus:ring-2 focus:ring-primary focus:outline-none"
+				>
+					Cancel
+				</button>
+				<button
+					type="button"
+					onclick={() => {
+						removeSpace(confirmingId!);
+						confirmingId = null;
+					}}
+					class="tui-invert cursor-pointer rounded-sm px-3 py-1 text-sm font-semibold hover:opacity-80 focus:ring-2 focus:ring-primary focus:outline-none"
+				>
+					Delete
+				</button>
+			</div>
+		</div>
+	</div>
+{/if}

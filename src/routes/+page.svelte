@@ -1,26 +1,31 @@
 <script lang="ts">
 	import { FileText, ListTodo } from 'lucide-svelte';
-	import { addColumn, columns, totalSpan, type CardType } from '$lib/workspace';
+	import { activeSpace, addColumn, totalSpan, type CardType } from '$lib/workspace';
 	import { TOTAL_UNITS } from '$lib/columnResize';
+	import Spaces from '$lib/components/Spaces.svelte';
 	import Column from '$lib/components/Column.svelte';
 	import { onMount } from 'svelte';
 
 	let mounted = $state(false);
 	onMount(() => (mounted = true));
 
-	const leftover = $derived(TOTAL_UNITS - totalSpan($columns));
+	const space = $derived($activeSpace);
+	const cols = $derived(space?.columns ?? []);
+	const leftover = $derived(space ? TOTAL_UNITS - totalSpan(cols) : 0);
 
 	function addToEmpty(type: CardType) {
-		if (leftover <= 0) return;
-		addColumn(type, leftover);
+		if (!space || leftover <= 0) return;
+		addColumn(space.id, type, leftover);
 	}
 </script>
 
-{#if mounted}
-	<div class="workspace-row flex items-start gap-3">
-		{#each $columns as column (column.id)}
+{#if mounted && space}
+	<Spaces />
+
+	<div class="workspace-row mt-4 flex items-start gap-3">
+		{#each cols as column (column.id)}
 			<div class="min-w-0" style={`flex-grow: ${column.span}; flex-basis: 0`}>
-				<Column {column} />
+				<Column {space} {column} />
 			</div>
 		{/each}
 

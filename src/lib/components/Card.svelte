@@ -1,14 +1,16 @@
 <script lang="ts">
 	import { GripVertical, Trash2 } from 'lucide-svelte';
-	import { removeCard, setCardTitle, type Card, type Column } from '$lib/workspace';
+	import { removeCard, setCardTitle, type Card, type Column, type Space } from '$lib/workspace';
 	import TodoList from './TodoList.svelte';
 	import NoteArea from './NoteArea.svelte';
 
 	let {
+		space,
 		column,
 		card,
 		onDragStart
 	}: {
+		space: Space;
 		column: Column;
 		card: Card;
 		onDragStart: (e: PointerEvent, cardId: string) => void;
@@ -27,7 +29,7 @@
 
 	function commitRename() {
 		const title = titleDraft.trim();
-		if (title) setCardTitle(column.id, card.id, title);
+		if (title) setCardTitle(space.id, column.id, card.id, title);
 		editingTitle = false;
 	}
 
@@ -35,7 +37,7 @@
 		if (hasContent) {
 			confirming = true;
 		} else {
-			removeCard(column.id, card.id);
+			removeCard(space.id, column.id, card.id);
 		}
 	}
 </script>
@@ -85,9 +87,9 @@
 
 	<div class="min-h-0 flex-1 p-3">
 		{#if card.type === 'todo'}
-			<TodoList {column} {card} />
+			<TodoList {space} {column} {card} />
 		{:else}
-			<NoteArea {column} {card} />
+			<NoteArea {space} {column} {card} />
 		{/if}
 	</div>
 </div>
@@ -123,7 +125,7 @@
 				</button>
 				<button
 					type="button"
-					onclick={() => removeCard(column.id, card.id)}
+					onclick={() => removeCard(space.id, column.id, card.id)}
 					class="tui-invert cursor-pointer rounded-sm px-3 py-1 text-sm font-semibold hover:opacity-80 focus:ring-2 focus:ring-primary focus:outline-none"
 				>
 					Delete
