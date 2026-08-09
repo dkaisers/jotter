@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en" data-theme="catppuccin-dark">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="text-scale" content="scale" />
+		<script>
+			(() => {
+				var key = 'jotter:theme';
+				var palettes = ['catppuccin', 'solarized'];
+				var modes = ['light', 'dark'];
+				var fonts = ['inter', 'roboto', 'lora', 'source-serif-4', 'jetbrains-mono', 'roboto-mono'];
+				var s = { palette: 'catppuccin', mode: 'dark', font: 'jetbrains-mono' };
+				try {
+					var stored = window.localStorage.getItem(key);
+					if (stored) {
+						var parsed = JSON.parse(stored);
+						if (palettes.includes(parsed.palette)) s.palette = parsed.palette;
+						if (modes.includes(parsed.mode)) s.mode = parsed.mode;
+						if (fonts.includes(parsed.font)) s.font = parsed.font;
+					}
+				} catch (e) {}
+				document.documentElement.setAttribute('data-theme', s.palette + '-' + s.mode);
+				document.documentElement.setAttribute('data-font', s.font);
+			})();
+		</script>
+		%sveltekit.head%
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
+</html>
