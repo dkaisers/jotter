@@ -14,7 +14,8 @@
 
 	function addToEmpty(type: CardType) {
 		if (!space || leftover <= 0) return;
-		addColumn(space.id, type, leftover);
+		const span = space.columns.length === 0 ? Math.floor(TOTAL_UNITS / 2) : leftover;
+		addColumn(space.id, type, span);
 	}
 </script>
 
@@ -27,7 +28,11 @@
 		{/each}
 
 		{#if leftover > 0}
-			<div class="flex min-w-0 flex-col" style={`flex-grow: ${leftover}; flex-basis: 0`}>
+			<div
+				data-empty-slot
+				class="flex min-w-0 flex-col"
+				style={`flex-grow: ${leftover}; flex-basis: 0`}
+			>
 				<div
 					class="flex flex-1 flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-outline-variant px-3 py-6"
 				>

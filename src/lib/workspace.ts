@@ -265,12 +265,14 @@ export function addCard(spaceId: string, columnId: string, type: CardType): stri
 }
 
 export function removeCard(spaceId: string, columnId: string, cardId: string) {
-	updateSpace(spaceId, (s) => ({
-		...s,
-		columns: s.columns.map((c) =>
+	updateSpace(spaceId, (s) => {
+		const columns = s.columns.map((c) =>
 			c.id === columnId ? { ...c, cards: c.cards.filter((x) => x.id !== cardId) } : c
-		)
-	}));
+		);
+		const idx = columns.findIndex((c) => c.id === columnId);
+		const isEmptyLast = idx !== -1 && idx === columns.length - 1 && columns[idx].cards.length === 0;
+		return { ...s, columns: isEmptyLast ? columns.slice(0, -1) : columns };
+	});
 }
 
 /** Moves a card to a column at an index. Returns false if source/target are missing. */
@@ -300,9 +302,33 @@ export function moveCard(
 			return { ...c, cards };
 		});
 		ok = next.some((c) => c.id === toColumnId);
-		return { ...s, columns: next };
+		// only an emptied *last* column collapses into leftover; others stay in place
+		const last = next[next.length - 1];
+		const columns = last && last.cards.length === 0 ? next.slice(0, -1) : next;
+		return { ...s, columns };
 	});
 	return ok;
+}
+
+/** Moves a card into a brand-new column occupying the given span of leftover space. */
+export function moveCardToNewColumn(spaceId: string, cardId: string, span: number) {
+	updateSpace(spaceId, (s) => {
+		let card: Card | undefined;
+		const without = s.columns.map((c) => {
+			const found = c.cards.find((x) => x.id === cardId);
+			if (found) {
+				card = found;
+				return { ...c, cards: c.cards.filter((x) => x.id !== cardId) };
+			}
+			return c;
+		});
+		if (!card) return s;
+		// keep the emptied source column in place; the new column takes the slot position
+		return {
+			...s,
+			columns: [...without, { id: newId(), span: Math.max(1, span), cards: [card] }]
+		};
+	});
 }
 
 /** Resizes a column's span. Freed space becomes trailing empty column; growth is capped by available space. */
@@ -313,10 +339,14 @@ export function setColumnSpan(spaceId: string, columnId: string, newSpan: number
 		const col = s.columns[idx];
 		const usedByOthers = totalSpan(s.columns) - col.span;
 		const available = TOTAL_UNITS - usedByOthers;
-		const span = Math.min(available, Math.max(1, Math.round(newSpan)));
+		const span = Math.min(available, Math.round(newSpan));
+		if (span <= 0 && col.cards.length === 0) {
+			// an empty column shrunk to zero width is removed, freeing its space as leftover
+			return { ...s, columns: s.columns.filter((c) => c.id !== columnId) };
+		}
 		return {
 			...s,
-			columns: s.columns.map((c, i) => (i === idx ? { ...c, span } : c))
+			columns: s.columns.map((c, i) => (i === idx ? { ...c, span: Math.max(1, span) } : c))
 		};
 	});
 }
