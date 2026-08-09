@@ -1,42 +1,41 @@
-# sv
+# jotter
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A quiet, local-first space for notes and todos.
 
-## Creating a project
+jotter organizes your notes and todo lists into **spaces** — each with its own
+resizable column layout. Everything is stored in your browser's localStorage:
+no accounts, no server, no tracking.
 
-If you're seeing this, you've probably already done this step. Congrats!
+## Features
 
-```sh
-# create a new project
-npx sv create my-app
-```
+- Multiple spaces behind tabs, reorderable by dragging
+- Resizable column layout; add todo lists and notes side by side
+- Inline editing, todo checkmarks, drag-to-reorder
+- Dark / light paper themes, font choices, paper grain, and more in Settings
+- Local-first: all data stays in your browser
 
-To recreate this project with the same configuration:
+## Live site
 
-```sh
-# recreate this project
-bun x sv@0.17.0 create --template minimal --types ts --add tailwindcss="plugins:typography,forms" prettier eslint --install bun jotter
-```
+[jotter](https://dkaisers.github.io/jotter/)
 
 ## Developing
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
 ```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+bun install
+bun run dev
 ```
 
 ## Building
 
-To create a production version of your app:
-
 ```sh
-npm run build
+bun run build
+bun run preview
 ```
 
-You can preview the production build with `npm run preview`.
+The build is a fully static site (SvelteKit with `adapter-static`), deployed to
+GitHub Pages via GitHub Actions on every push to `main`.
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+## License
+
+MIT — see [LICENSE](LICENSE). See the acknowledgements in the app footer for
+third-party licenses.

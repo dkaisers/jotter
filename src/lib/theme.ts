@@ -62,6 +62,8 @@ function setFavicon(mode: Mode) {
 		document.head.appendChild(link);
 	}
 	link.href = 'data:image/svg+xml,' + encodeURIComponent(svg);
+	const themeColor = document.querySelector('meta[name="theme-color"]');
+	if (themeColor) themeColor.setAttribute('content', bg);
 }
 
 function parseMode(mode: string | null | undefined): Mode | null {

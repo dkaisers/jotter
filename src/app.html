@@ -4,6 +4,16 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="text-scale" content="scale" />
+		<meta name="description" content="jotter — a quiet, local-first space for notes and todos." />
+		<meta name="theme-color" content="#1f1d1a" />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="jotter" />
+		<meta property="og:title" content="jotter" />
+		<meta property="og:description" content="A quiet, local-first space for notes and todos." />
+		<meta name="twitter:card" content="summary" />
+		<meta name="twitter:title" content="jotter" />
+		<meta name="twitter:description" content="A quiet, local-first space for notes and todos." />
+		<title>jotter</title>
 		<script>
 			(() => {
 				var key = 'jotter:theme';
@@ -49,6 +59,8 @@
 					document.head.appendChild(link);
 				}
 				link.href = 'data:image/svg+xml,' + encodeURIComponent(svg);
+				var themeColor = document.querySelector('meta[name="theme-color"]');
+				if (themeColor) themeColor.setAttribute('content', p.bg);
 			})();
 		</script>
 		%sveltekit.head%

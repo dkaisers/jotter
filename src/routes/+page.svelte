@@ -29,9 +29,15 @@
 		{#if leftover > 0}
 			<div class="flex min-w-0 flex-col" style={`flex-grow: ${leftover}; flex-basis: 0`}>
 				<div
-					class="flex flex-1 flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-outline-variant px-3 py-6"
+					class="flex flex-1 flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-outline-variant px-3 py-6"
 				>
-					<span class="text-xs text-on-surface-variant">empty</span>
+					{#if cols.length === 0}
+						<p class="text-sm text-on-surface-variant">
+							No columns yet — add a todo list or a note to get started.
+						</p>
+					{:else}
+						<span class="text-xs text-on-surface-variant">empty</span>
+					{/if}
 					<div class="flex items-center gap-2">
 						<button
 							type="button"

@@ -92,6 +92,9 @@
 
 @layer base {
 	body {
+		display: flex;
+		flex-direction: column;
+		min-height: 100vh;
 		background-color: var(--base);
 		color: var(--on-surface);
 		font-family: var(--font-ui);
