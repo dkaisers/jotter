@@ -7,7 +7,8 @@
 		updateTodo,
 		type Column,
 		type Space,
-		type TodoCard
+		type TodoCard,
+		type TodoItem
 	} from '$lib/workspace';
 	import { settings } from '$lib/theme';
 
@@ -31,6 +32,10 @@
 		} else {
 			updateTodo(space.id, column.id, card.id, todoId, { done });
 		}
+	}
+
+	function patchTodo(todoId: string, patch: Partial<TodoItem>) {
+		updateTodo(space.id, column.id, card.id, todoId, patch);
 	}
 
 	function submit() {
@@ -87,71 +92,70 @@
 	});
 </script>
 
-<div class="flex flex-col gap-1">
-	<ul class="flex flex-col gap-1">
-		{#each card.todos as todo (todo.id)}
-			<li data-todo-id={todo.id} class="group relative flex items-start gap-2 pl-2">
-				<button
-					type="button"
-					title="Drag to reorder"
-					onpointerdown={(e) => onDragStart(e, todo.id)}
-					class="absolute top-0 -left-3 flex h-5 w-5 cursor-grab items-center justify-center text-on-surface-variant opacity-0 transition-opacity group-hover:opacity-100 focus:outline-none active:cursor-grabbing"
-				>
-					<GripVertical class="size-3.5" />
-				</button>
+<div class="flex flex-col gap-1.5">
+	{#each card.todos as todo (todo.id)}
+		<div data-todo-id={todo.id} class="group relative flex items-start gap-2 pl-2">
+			<button
+				type="button"
+				title="Drag to reorder"
+				onpointerdown={(e) => onDragStart(e, todo.id)}
+				class="absolute top-0.5 -left-3 flex h-5 w-5 cursor-grab items-center justify-center text-on-surface-variant opacity-0 transition-opacity group-hover:opacity-100 focus:outline-none active:cursor-grabbing"
+			>
+				<GripVertical class="size-3.5" />
+			</button>
 
-				<button
-					type="button"
-					role="checkbox"
-					aria-checked={todo.done}
-					title={todo.done ? 'Mark as not done' : 'Mark as done'}
-					onclick={() => toggleTodo(todo.id, !todo.done)}
-					class="flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-full border text-on-surface hover:border-primary hover:text-primary focus:outline-none"
-					class:border-primary={todo.done || todo.flagged}
-					class:border-outline-variant={!todo.done && !todo.flagged}
-					class:bg-primary-container={todo.done}
-				>
-					{#if todo.done}
-						<Check class="size-3" />
-					{/if}
-				</button>
-
-				{#if editingId === todo.id}
-					<textarea
-						rows="1"
-						bind:this={editInput}
-						bind:value={draftEdit}
-						spellcheck={$settings.spellcheck}
-						onkeydown={(e) => {
-							if (e.key === 'Enter' && !e.shiftKey) {
-								e.preventDefault();
-								commitEdit(todo.id);
-							}
-							if (e.key === 'Escape') editingId = null;
-						}}
-						onblur={() => commitEdit(todo.id)}
-						class="w-full resize-none border-0 bg-transparent px-1 py-0 text-sm leading-5 text-on-surface focus:ring-0 focus:outline-none"
-						style="field-sizing: content; min-height: 1lh;"></textarea>
-				{:else}
-					<button
-						type="button"
-						onclick={() => startEdit(todo.id, todo.text)}
-						class="w-full min-w-0 flex-1 cursor-text rounded-md px-1 text-left text-sm break-words whitespace-pre-wrap focus:outline-none"
-						class:text-on-surface-variant={todo.done}
-						class:line-through={todo.done}
-					>
-						{todo.text}
-					</button>
+			<button
+				type="button"
+				role="checkbox"
+				aria-checked={todo.done}
+				title={todo.done ? 'Mark as not done' : 'Mark as done'}
+				onclick={() => toggleTodo(todo.id, !todo.done)}
+				class="mt-1 flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded-full border text-on-surface hover:border-primary hover:text-primary focus:outline-none"
+				class:border-primary={todo.done || todo.flagged}
+				class:border-outline-variant={!todo.done && !todo.flagged}
+				class:bg-primary-container={todo.done}
+			>
+				{#if todo.done}
+					<Check class="size-3" />
 				{/if}
+			</button>
 
+			{#if editingId === todo.id}
+				<textarea
+					rows="1"
+					bind:this={editInput}
+					bind:value={draftEdit}
+					spellcheck={$settings.spellcheck}
+					onkeydown={(e) => {
+						if (e.key === 'Enter' && !e.shiftKey) {
+							e.preventDefault();
+							commitEdit(todo.id);
+						}
+						if (e.key === 'Escape') editingId = null;
+					}}
+					onblur={() => commitEdit(todo.id)}
+					class="min-w-0 flex-1 resize-none border-0 bg-transparent px-1 py-0 text-sm leading-5 text-on-surface focus:ring-0 focus:outline-none"
+					style="field-sizing: content; min-height: 1lh;"></textarea>
+			{:else}
+				<button
+					type="button"
+					onclick={() => startEdit(todo.id, todo.text)}
+					class="w-full min-w-0 flex-1 cursor-text rounded-md px-1 text-left text-sm break-words whitespace-pre-wrap focus:outline-none"
+					class:text-on-surface-variant={todo.done}
+					class:line-through={todo.done}
+				>
+					{todo.text}
+				</button>
+			{/if}
+
+			<div
+				class="absolute top-0 right-0 z-10 hidden items-center gap-0.5 rounded-full bg-surface-variant px-1 py-0.5 shadow group-hover:flex"
+			>
 				<button
 					type="button"
 					title={todo.flagged ? 'Unmark as important' : 'Mark as important'}
-					onclick={() =>
-						updateTodo(space.id, column.id, card.id, todo.id, {
-							flagged: !todo.flagged
-						})}
-					class="hidden h-5 shrink-0 cursor-pointer items-center rounded-md px-1 text-on-surface-variant transition-colors group-hover:flex hover:bg-surface-variant hover:text-on-surface focus:outline-none"
+					onclick={() => patchTodo(todo.id, { flagged: !todo.flagged })}
+					class="flex h-4 w-6 cursor-pointer items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface hover:text-on-surface focus:outline-none"
 				>
 					<TriangleAlert class="size-3.5" />
 				</button>
@@ -160,13 +164,13 @@
 					type="button"
 					title="Delete todo"
 					onclick={() => removeTodo(space.id, column.id, card.id, todo.id)}
-					class="-ml-1 hidden h-5 shrink-0 cursor-pointer items-center rounded-md px-1 text-on-surface-variant transition-colors group-hover:flex hover:bg-surface-variant hover:text-on-surface focus:ring-2 focus:ring-primary focus:outline-none"
+					class="flex h-4 w-6 cursor-pointer items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface hover:text-on-surface focus:ring-2 focus:ring-primary focus:outline-none"
 				>
 					<Trash2 class="size-3.5" />
 				</button>
-			</li>
-		{/each}
-	</ul>
+			</div>
+		</div>
+	{/each}
 
 	<form
 		onsubmit={(e) => {
@@ -176,7 +180,7 @@
 		class="flex items-start gap-2 pl-2"
 	>
 		<span
-			class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-dashed border-outline-variant opacity-60"
+			class="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-dashed border-outline-variant opacity-60"
 			aria-hidden="true"
 		></span>
 		<textarea

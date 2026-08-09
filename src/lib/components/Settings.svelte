@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Settings as SettingsIcon } from 'lucide-svelte';
+	import { Switch } from 'bits-ui';
 	import {
 		settings,
 		modes,
@@ -49,8 +50,7 @@
 					title={m.label}
 					onclick={() => setMode(m.value as Mode)}
 					class="h-6 w-16 cursor-pointer rounded-md text-sm focus:ring-2 focus:ring-primary focus:outline-none"
-					class:accent-fill={$settings.mode === m.value}
-					style={`background-color: ${$settings.mode !== m.value ? 'color-mix(in srgb, var(--surface-variant) 40%, transparent)' : ''}`}
+					style={`background-color: ${$settings.mode === m.value ? 'var(--primary)' : 'color-mix(in srgb, var(--surface-variant) 40%, transparent)'}; color: ${$settings.mode === m.value ? 'var(--on-primary)' : 'var(--on-surface)'}`}
 				>
 					{m.label}
 				</button>
@@ -94,21 +94,17 @@
 
 	<div class="flex items-center justify-between px-0.5 py-1">
 		<span class="text-sm text-on-surface">Paper grain</span>
-		<button
-			type="button"
-			role="switch"
-			aria-checked={$settings.grain}
-			aria-label="Toggle paper grain"
-			onclick={() => setGrain(!$settings.grain)}
-			class="flex h-5 w-9 cursor-pointer items-center rounded-full p-0.5 transition-colors focus:ring-2 focus:ring-primary focus:outline-none"
-			class:accent-fill={$settings.grain}
-			class:bg-surface-variant={!$settings.grain}
+		<Switch.Root
+			checked={$settings.grain}
+			onCheckedChange={(c) => setGrain(c)}
+			class="flex h-5 w-9 cursor-pointer items-center rounded-full p-0.5 transition-colors focus:outline-none data-[state=checked]:bg-primary data-[state=unchecked]:bg-surface-variant"
 		>
-			<span
-				class="size-4 rounded-full bg-white shadow transition-transform"
-				class:translate-x-4={$settings.grain}
-			></span>
-		</button>
+			<Switch.Thumb
+				class={`size-4 rounded-full bg-white shadow transition-transform ${
+					$settings.grain ? 'translate-x-4' : ''
+				}`}
+			/>
+		</Switch.Root>
 	</div>
 
 	<div class="mt-4 border-t border-outline-variant pt-3">
@@ -117,40 +113,32 @@
 		</p>
 		<div class="flex items-center justify-between px-0.5 py-1">
 			<span class="text-sm text-on-surface">Auto-delete done todos</span>
-			<button
-				type="button"
-				role="switch"
-				aria-checked={$settings.autoDeleteDone}
-				aria-label="Toggle auto-delete done todos"
-				onclick={() => setAutoDeleteDone(!$settings.autoDeleteDone)}
-				class="flex h-5 w-9 cursor-pointer items-center rounded-full p-0.5 transition-colors focus:ring-2 focus:ring-primary focus:outline-none"
-				class:accent-fill={$settings.autoDeleteDone}
-				class:bg-surface-variant={!$settings.autoDeleteDone}
+			<Switch.Root
+				checked={$settings.autoDeleteDone}
+				onCheckedChange={(c) => setAutoDeleteDone(c)}
+				class="flex h-5 w-9 cursor-pointer items-center rounded-full p-0.5 transition-colors focus:outline-none data-[state=checked]:bg-primary data-[state=unchecked]:bg-surface-variant"
 			>
-				<span
-					class="size-4 rounded-full bg-white shadow transition-transform"
-					class:translate-x-4={$settings.autoDeleteDone}
-				></span>
-			</button>
+				<Switch.Thumb
+					class={`size-4 rounded-full bg-white shadow transition-transform ${
+						$settings.autoDeleteDone ? 'translate-x-4' : ''
+					}`}
+				/>
+			</Switch.Root>
 		</div>
 
 		<div class="flex items-center justify-between px-0.5 py-1">
 			<span class="text-sm text-on-surface">Spell checking</span>
-			<button
-				type="button"
-				role="switch"
-				aria-checked={$settings.spellcheck}
-				aria-label="Toggle spell checking"
-				onclick={() => setSpellcheck(!$settings.spellcheck)}
-				class="flex h-5 w-9 cursor-pointer items-center rounded-full p-0.5 transition-colors focus:ring-2 focus:ring-primary focus:outline-none"
-				class:accent-fill={$settings.spellcheck}
-				class:bg-surface-variant={!$settings.spellcheck}
+			<Switch.Root
+				checked={$settings.spellcheck}
+				onCheckedChange={(c) => setSpellcheck(c)}
+				class="flex h-5 w-9 cursor-pointer items-center rounded-full p-0.5 transition-colors focus:outline-none data-[state=checked]:bg-primary data-[state=unchecked]:bg-surface-variant"
 			>
-				<span
-					class="size-4 rounded-full bg-white shadow transition-transform"
-					class:translate-x-4={$settings.spellcheck}
-				></span>
-			</button>
+				<Switch.Thumb
+					class={`size-4 rounded-full bg-white shadow transition-transform ${
+						$settings.spellcheck ? 'translate-x-4' : ''
+					}`}
+				/>
+			</Switch.Root>
 		</div>
 	</div>
 </Modal>

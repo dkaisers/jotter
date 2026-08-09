@@ -40,8 +40,6 @@
 						<p class="text-sm text-on-surface-variant">
 							No columns yet — add a todo list or a note to get started.
 						</p>
-					{:else}
-						<span class="text-xs text-on-surface-variant">empty</span>
 					{/if}
 					<div class="flex items-center gap-2">
 						<button

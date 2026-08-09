@@ -47,7 +47,7 @@
 </script>
 
 <div data-card-id={card.id} class="flex flex-col rounded-lg bg-surface shadow-sm">
-	<header class="flex shrink-0 items-center gap-1 border-b border-outline-variant px-3 py-2">
+	<header class="group flex shrink-0 items-center gap-1 border-b border-outline-variant px-3 py-2">
 		<button
 			type="button"
 			title="Drag to move"
@@ -84,7 +84,7 @@
 			type="button"
 			title="Delete card"
 			onclick={deleteCard}
-			class="flex h-6 shrink-0 cursor-pointer items-center rounded-md px-1 text-on-surface-variant hover:bg-surface-variant hover:text-on-surface focus:ring-2 focus:ring-primary focus:outline-none"
+			class="flex h-6 shrink-0 cursor-pointer items-center rounded-md px-1 text-on-surface-variant opacity-0 transition-opacity group-hover:opacity-100 hover:bg-surface-variant hover:text-on-surface focus:ring-2 focus:ring-primary focus:outline-none"
 		>
 			<Trash2 class="size-4" />
 		</button>

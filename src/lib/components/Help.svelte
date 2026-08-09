@@ -43,6 +43,13 @@
 			</p>
 		</div>
 		<div>
+			<p class="text-on-surface">Important</p>
+			<p class="mt-0.5">
+				Hover a todo and click the triangle to mark it important — the checkbox gets an accent ring.
+				Tabs with important undone todos show a triangle, and the favicon turns red while any exist.
+			</p>
+		</div>
+		<div>
 			<p class="text-on-surface">Notes</p>
 			<p class="mt-0.5">Free-form text — everything is saved automatically as you type.</p>
 		</div>

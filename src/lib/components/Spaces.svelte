@@ -175,7 +175,7 @@
 							e.stopPropagation();
 							onCloseClick(space.id);
 						}}
-						class="-mr-1 flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-md text-on-surface-variant hover:bg-surface-variant focus:ring-2 focus:ring-outline focus:outline-none"
+						class="-mr-1 ml-1 flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-md text-on-surface-variant hover:bg-surface-variant focus:ring-2 focus:ring-outline focus:outline-none"
 					>
 						<X class="size-3.5" />
 					</button>

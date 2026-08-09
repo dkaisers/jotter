@@ -69,7 +69,6 @@
 		<div
 			class="flex flex-1 flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-outline-variant px-3 py-6"
 		>
-			<span class="text-xs text-on-surface-variant">empty</span>
 			<div class="flex items-center gap-2">
 				<button
 					type="button"
