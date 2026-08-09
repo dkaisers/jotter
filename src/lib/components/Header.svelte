@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Spaces from './Spaces.svelte';
+	import { PenTool } from 'lucide-svelte';
 	import { onMount } from 'svelte';
 
 	let { children } = $props();
@@ -13,9 +14,10 @@
 
 <div class="mx-auto w-full max-w-[60rem] px-4 pt-6 sm:px-6 sm:pt-8">
 	<h1
-		class="text-2xl font-semibold tracking-tight text-on-surface"
+		class="flex items-center gap-2 text-2xl font-semibold tracking-tight text-on-surface"
 		style="font-family: 'Lora Variable', Georgia, 'Times New Roman', serif;"
 	>
+		<PenTool class="size-5 translate-y-[0.15em] text-primary" />
 		jotter
 	</h1>
 

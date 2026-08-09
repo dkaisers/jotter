@@ -16,8 +16,8 @@
 	let draft = $state('');
 	let editingId: string | null = $state(null);
 	let draftEdit = $state('');
-	let draftInput: HTMLInputElement | undefined = $state();
-	let editInput: HTMLInputElement | undefined = $state();
+	let draftInput: HTMLTextAreaElement | undefined = $state();
+	let editInput: HTMLTextAreaElement | undefined = $state();
 	let dragTodoId: string | null = $state(null);
 
 	function toggleTodo(todoId: string, done: boolean) {
@@ -78,10 +78,10 @@
 	}
 </script>
 
-<div class="flex flex-col gap-2">
+<div class="flex flex-col gap-1">
 	<ul class="flex flex-col gap-1">
 		{#each card.todos as todo (todo.id)}
-			<li data-todo-id={todo.id} class="group relative flex items-center gap-2 pl-2">
+			<li data-todo-id={todo.id} class="group relative flex items-start gap-2 pl-2">
 				<button
 					type="button"
 					title="Drag to reorder"
@@ -108,23 +108,26 @@
 				</button>
 
 				{#if editingId === todo.id}
-					<input
-						type="text"
+					<textarea
+						rows="1"
 						bind:this={editInput}
 						bind:value={draftEdit}
 						spellcheck={$settings.spellcheck}
 						onkeydown={(e) => {
-							if (e.key === 'Enter') commitEdit(todo.id);
+							if (e.key === 'Enter' && !e.shiftKey) {
+								e.preventDefault();
+								commitEdit(todo.id);
+							}
 							if (e.key === 'Escape') editingId = null;
 						}}
 						onblur={() => commitEdit(todo.id)}
-						class="w-full border-0 bg-transparent px-1 py-0 text-sm text-on-surface focus:ring-0 focus:outline-none"
-					/>
+						class="w-full resize-none border-0 bg-transparent px-1 py-0 text-sm leading-5 text-on-surface focus:ring-0 focus:outline-none"
+						style="field-sizing: content; min-height: 1lh;"></textarea>
 				{:else}
 					<button
 						type="button"
 						onclick={() => startEdit(todo.id, todo.text)}
-						class="w-full min-w-0 flex-1 cursor-text rounded-md px-1 text-left text-sm focus:outline-none"
+						class="w-full min-w-0 flex-1 cursor-text rounded-md px-1 text-left text-sm break-words whitespace-pre-wrap focus:outline-none"
 						class:text-on-surface-variant={todo.done}
 						class:line-through={todo.done}
 					>
@@ -149,19 +152,25 @@
 			e.preventDefault();
 			submit();
 		}}
-		class="flex items-center gap-2 pl-2"
+		class="flex items-start gap-2 pl-2"
 	>
 		<span
-			class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-dashed border-outline-variant opacity-60"
+			class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-dashed border-outline-variant opacity-60"
 			aria-hidden="true"
 		></span>
-		<input
-			type="text"
+		<textarea
+			rows="1"
 			bind:this={draftInput}
 			placeholder="Add todo…"
 			spellcheck={$settings.spellcheck}
 			bind:value={draft}
-			class="w-full border-0 bg-transparent px-1 py-0 text-sm text-on-surface placeholder:text-on-surface-variant focus:ring-0 focus:outline-none"
-		/>
+			onkeydown={(e) => {
+				if (e.key === 'Enter' && !e.shiftKey) {
+					e.preventDefault();
+					submit();
+				}
+			}}
+			class="w-full resize-none border-0 bg-transparent px-1 py-0 text-sm leading-5 text-on-surface placeholder:text-on-surface-variant focus:ring-0 focus:outline-none"
+			style="field-sizing: content; min-height: 1lh;"></textarea>
 	</form>
 </div>
