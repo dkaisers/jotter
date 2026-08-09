@@ -38,10 +38,10 @@
 </script>
 
 <div
-	class="relative mx-auto mt-4 w-[calc(100%-1rem)] max-w-[60rem] border border-outline bg-surface sm:mt-6 sm:w-[calc(100%-2rem)]"
+	class="relative mx-auto mt-8 w-[calc(100%-1rem)] max-w-[60rem] border border-outline bg-surface sm:mt-12 sm:w-[calc(100%-2rem)]"
 >
 	<span
-		class="absolute top-0 left-3 -translate-y-1/2 bg-base px-2 text-sm font-semibold tracking-tight text-on-surface sm:left-4"
+		class="absolute top-0 left-3 flex h-7 -translate-y-1/2 items-center border border-outline bg-surface px-2 text-sm font-semibold tracking-tight text-on-surface sm:left-4"
 	>
 		jotter
 	</span>
@@ -55,7 +55,7 @@
 			onclick={() => (open = !open)}
 			class:bg-on-surface={open}
 			class:text-surface={open}
-			class="absolute top-0 right-2 -translate-y-1/2 bg-base p-1.5 text-on-surface hover:bg-on-surface hover:text-surface focus:ring-2 focus:ring-outline focus:outline-none sm:right-4"
+			class="absolute top-0 right-2 flex h-7 -translate-y-1/2 cursor-pointer items-center border border-outline bg-surface px-1.5 text-on-surface hover:bg-on-surface hover:text-surface focus:ring-2 focus:ring-outline focus:outline-none sm:right-4"
 		>
 			<Settings class="size-4" />
 		</button>
