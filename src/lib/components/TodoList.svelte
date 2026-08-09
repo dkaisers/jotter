@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Check, GripVertical, Trash2 } from 'lucide-svelte';
+	import { Check, GripVertical, Trash2, TriangleAlert } from 'lucide-svelte';
 	import {
 		addTodo,
 		removeTodo,
@@ -95,7 +95,7 @@
 					type="button"
 					title="Drag to reorder"
 					onpointerdown={(e) => onDragStart(e, todo.id)}
-					class="absolute top-1/2 -left-3 flex h-6 w-5 -translate-y-1/2 cursor-grab items-center justify-center text-on-surface-variant opacity-0 transition-opacity group-hover:opacity-100 focus:outline-none active:cursor-grabbing"
+					class="absolute top-0 -left-3 flex h-5 w-5 cursor-grab items-center justify-center text-on-surface-variant opacity-0 transition-opacity group-hover:opacity-100 focus:outline-none active:cursor-grabbing"
 				>
 					<GripVertical class="size-3.5" />
 				</button>
@@ -107,8 +107,8 @@
 					title={todo.done ? 'Mark as not done' : 'Mark as done'}
 					onclick={() => toggleTodo(todo.id, !todo.done)}
 					class="flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-full border text-on-surface hover:border-primary hover:text-primary focus:outline-none"
-					class:border-primary={todo.done}
-					class:border-outline-variant={!todo.done}
+					class:border-primary={todo.done || todo.flagged}
+					class:border-outline-variant={!todo.done && !todo.flagged}
 					class:bg-primary-container={todo.done}
 				>
 					{#if todo.done}
@@ -146,9 +146,21 @@
 
 				<button
 					type="button"
+					title={todo.flagged ? 'Unmark as important' : 'Mark as important'}
+					onclick={() =>
+						updateTodo(space.id, column.id, card.id, todo.id, {
+							flagged: !todo.flagged
+						})}
+					class="hidden h-5 shrink-0 cursor-pointer items-center rounded-md px-1 text-on-surface-variant transition-colors group-hover:flex hover:bg-surface-variant hover:text-on-surface focus:outline-none"
+				>
+					<TriangleAlert class="size-3.5" />
+				</button>
+
+				<button
+					type="button"
 					title="Delete todo"
 					onclick={() => removeTodo(space.id, column.id, card.id, todo.id)}
-					class="flex h-6 shrink-0 cursor-pointer items-center rounded-md px-1 text-on-surface-variant opacity-0 transition-opacity group-hover:opacity-100 hover:bg-surface-variant hover:text-on-surface focus:opacity-100 focus:ring-2 focus:ring-primary focus:outline-none"
+					class="-ml-1 hidden h-5 shrink-0 cursor-pointer items-center rounded-md px-1 text-on-surface-variant transition-colors group-hover:flex hover:bg-surface-variant hover:text-on-surface focus:ring-2 focus:ring-primary focus:outline-none"
 				>
 					<Trash2 class="size-3.5" />
 				</button>

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ChevronLeft, ChevronRight, Plus, X } from 'lucide-svelte';
+	import { ChevronLeft, ChevronRight, Plus, TriangleAlert, X } from 'lucide-svelte';
 	import {
 		activeSpace,
 		addSpace,
@@ -12,6 +12,7 @@
 	import { onMount } from 'svelte';
 	import Settings from './Settings.svelte';
 	import Help from './Help.svelte';
+	import { spaceHasFlagged } from '$lib/workspace';
 
 	let scrollEl: HTMLElement | undefined = $state();
 	let canLeft = $state(false);
@@ -133,6 +134,10 @@
 				class:border-transparent={active?.id !== space.id}
 				style={`background-color: ${active?.id === space.id ? 'var(--surface)' : 'color-mix(in srgb, var(--surface) 40%, transparent)'}`}
 			>
+				{#if spaceHasFlagged(space)}
+					<TriangleAlert class="mr-1 size-3.5 shrink-0 text-primary" />
+				{/if}
+
 				{#if editingId === space.id}
 					<input
 						type="text"

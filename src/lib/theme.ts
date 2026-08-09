@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store';
+import { refreshFavicon } from '$lib/favicon';
 
 export type Mode = 'light' | 'dark';
 export type FontId = 'sans' | 'serif' | 'mono';
@@ -34,36 +35,15 @@ export const fonts: { value: FontId; label: string }[] = [
 
 const STORAGE_KEY = 'jotter:theme';
 
-const FAVICON_PALETTE: Record<Mode, { bg: string; fg: string }> = {
-	dark: { bg: '#1f1d1a', fg: '#d0765a' },
-	light: { bg: '#f5f1e8', fg: '#c05b3c' }
+const THEME_COLORS: Record<Mode, { bg: string }> = {
+	dark: { bg: '#1f1d1a' },
+	light: { bg: '#f5f1e8' }
 };
 
 function setFavicon(mode: Mode) {
-	let { bg, fg } = FAVICON_PALETTE[mode];
-	const cs = getComputedStyle(document.documentElement);
-	const cssBase = cs.getPropertyValue('--base').trim();
-	const cssPrimary = cs.getPropertyValue('--primary').trim();
-	if (cssBase) bg = cssBase;
-	if (cssPrimary) fg = cssPrimary;
-	const svg =
-		`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>` +
-		`<rect x='1' y='1' width='22' height='22' rx='6' fill='${bg}'/>` +
-		`<g transform='translate(12.5 11.5) scale(0.8) translate(-12.5 -11.5)' fill='none' stroke='${fg}' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'>` +
-		`<path d='M15.707 21.293a1 1 0 0 1-1.414 0l-1.586-1.586a1 1 0 0 1 0-1.414l5.586-5.586a1 1 0 0 1 1.414 0l1.586 1.586a1 1 0 0 1 0 1.414z'/>` +
-		`<path d='m18 13-1.375-6.874a1 1 0 0 0-.746-.776L3.235 2.028a1 1 0 0 0-1.207 1.207L5.35 15.879a1 1 0 0 0 .776.746L13 18'/>` +
-		`<path d='m2.3 2.3 7.286 7.286'/>` +
-		`<circle cx='11' cy='11' r='2'/></g></svg>`;
-	let link = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
-	if (!link) {
-		link = document.createElement('link');
-		link.rel = 'icon';
-		link.type = 'image/svg+xml';
-		document.head.appendChild(link);
-	}
-	link.href = 'data:image/svg+xml,' + encodeURIComponent(svg);
+	refreshFavicon();
 	const themeColor = document.querySelector('meta[name="theme-color"]');
-	if (themeColor) themeColor.setAttribute('content', bg);
+	if (themeColor) themeColor.setAttribute('content', THEME_COLORS[mode].bg);
 }
 
 function parseMode(mode: string | null | undefined): Mode | null {

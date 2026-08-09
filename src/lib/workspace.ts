@@ -6,6 +6,7 @@ export interface TodoItem {
 	id: string;
 	text: string;
 	done: boolean;
+	flagged: boolean;
 }
 
 interface CardBase {
@@ -93,7 +94,8 @@ function sanitizeColumns(raw: unknown): Column[] {
 						.map((t) => ({
 							id: typeof t.id === 'string' ? t.id : newId(),
 							text: t.text,
-							done: !!t.done
+							done: !!t.done,
+							flagged: !!t.flagged
 						}))
 				});
 			} else {
@@ -182,6 +184,26 @@ workspace.subscribe((w) => {
 export const activeSpace = derived(workspace, (w) => {
 	return w.spaces.find((s) => s.id === w.activeId) ?? w.spaces[0];
 });
+
+/** Number of flagged, not-done todos across all spaces. */
+export function countFlaggedUndone(w: Workspace): number {
+	let n = 0;
+	for (const s of w.spaces) {
+		for (const c of s.columns) {
+			for (const card of c.cards) {
+				if (card.type === 'todo') n += card.todos.filter((t) => t.flagged && !t.done).length;
+			}
+		}
+	}
+	return n;
+}
+
+/** Whether a space contains any flagged, not-done todo. */
+export function spaceHasFlagged(space: Space): boolean {
+	return space.columns.some((c) =>
+		c.cards.some((card) => card.type === 'todo' && card.todos.some((t) => t.flagged && !t.done))
+	);
+}
 
 function updateSpace(spaceId: string, fn: (space: Space) => Space) {
 	workspace.update((w) => ({
@@ -397,7 +419,10 @@ export function addTodo(spaceId: string, columnId: string, cardId: string, text:
 						...c,
 						cards: c.cards.map((x) =>
 							x.type === 'todo' && x.id === cardId
-								? { ...x, todos: [...x.todos, { id: newId(), text: trimmed, done: false }] }
+								? {
+										...x,
+										todos: [...x.todos, { id: newId(), text: trimmed, done: false, flagged: false }]
+									}
 								: x
 						)
 					}
