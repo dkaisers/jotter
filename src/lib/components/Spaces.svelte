@@ -184,7 +184,7 @@
 				e.currentTarget.blur();
 				addSpace();
 			}}
-			class="mr-2 flex w-6 shrink-0 cursor-pointer items-center justify-center self-stretch rounded-t-md border-b-2 border-transparent text-on-surface-variant transition-colors hover:bg-surface hover:text-on-surface focus:outline-none"
+			class="mr-2 flex w-8 shrink-0 cursor-pointer items-center justify-center self-stretch rounded-t-md border-b-2 border-transparent text-on-surface-variant transition-colors hover:bg-surface hover:text-on-surface focus:outline-none"
 		>
 			<Plus class="size-4" />
 		</button>

@@ -2,7 +2,8 @@
 	import Modal from './Modal.svelte';
 
 	const LICENSE_URL = 'https://github.com/dkaisers/jotter/blob/main/LICENSE';
-	const YEAR = new Date().getFullYear();
+	const GITHUB_PRIVACY_URL =
+		'https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement';
 
 	type Section = 'license' | 'privacy' | 'credits';
 
@@ -18,9 +19,8 @@
 </script>
 
 <footer
-	class="mx-auto flex w-full max-w-[60rem] items-center justify-between px-4 py-4 text-xs text-on-surface-variant sm:px-6"
+	class="mx-auto flex w-full max-w-[60rem] items-center justify-end px-4 py-4 text-xs text-on-surface-variant sm:px-6"
 >
-	<span>© {YEAR} Dominik Kaisers</span>
 	<nav class="flex items-center gap-4">
 		<button
 			type="button"
@@ -69,21 +69,92 @@
 			class="mt-4 inline-block text-primary hover:underline">View the LICENSE file on GitHub →</a
 		>
 	{:else if open === 'privacy'}
-		<p>jotter is local-first. Everything you write is stored in your browser's localStorage.</p>
+		<p>
+			jotter is local-first. Your notes and todos stay in your browser's localStorage — they are
+			never uploaded or transmitted anywhere.
+		</p>
 		<ul class="mt-3 list-disc space-y-1 pl-4">
 			<li>No accounts, no sign-up</li>
-			<li>No server — nothing is uploaded or transmitted</li>
 			<li>No analytics, no tracking, no cookies</li>
 			<li>Clearing your browser data removes everything</li>
 		</ul>
+		<p class="mt-3">
+			The app itself is served as static files from GitHub Pages. When you load the page, GitHub may
+			log standard request information (such as your IP address) in line with
+			<a
+				href={GITHUB_PRIVACY_URL}
+				target="_blank"
+				rel="noopener noreferrer"
+				class="text-primary hover:underline">GitHub's Privacy Statement</a
+			>.
+		</p>
 	{:else if open === 'credits'}
-		<p>jotter is built with open-source software.</p>
+		<p>jotter is built with open-source software:</p>
 		<ul class="mt-3 list-disc space-y-1 pl-4">
-			<li>Svelte &amp; SvelteKit — <span class="text-on-surface">MIT</span></li>
-			<li>Tailwind CSS — <span class="text-on-surface">MIT</span></li>
-			<li>lucide icons — <span class="text-on-surface">ISC</span></li>
 			<li>
-				Inter, Lora &amp; JetBrains Mono fonts — <span class="text-on-surface">SIL OFL 1.1</span>
+				<a
+					href="https://svelte.dev"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="text-primary hover:underline">Svelte</a
+				>
+				&amp;
+				<a
+					href="https://svelte.dev/docs/kit"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="text-primary hover:underline">SvelteKit</a
+				>
+				— MIT
+			</li>
+			<li>
+				<a
+					href="https://tailwindcss.com"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="text-primary hover:underline">Tailwind CSS</a
+				>
+				— MIT
+			</li>
+			<li>
+				<a
+					href="https://lucide.dev"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="text-primary hover:underline">lucide</a
+				>
+				icons — ISC
+			</li>
+			<li>
+				<a
+					href="https://rsms.me/inter/"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="text-primary hover:underline">Inter</a
+				>,
+				<a
+					href="https://fonts.google.com/specimen/Lora"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="text-primary hover:underline">Lora</a
+				>
+				&amp;
+				<a
+					href="https://www.jetbrains.com/lp/mono/"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="text-primary hover:underline">JetBrains Mono</a
+				>
+				fonts — SIL OFL 1.1
+			</li>
+			<li>
+				<a
+					href="https://github.com/logos"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="text-primary hover:underline">GitHub logo</a
+				>
+				— trademark of GitHub, Inc., used to link to the source
 			</li>
 		</ul>
 	{/if}
