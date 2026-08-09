@@ -121,6 +121,8 @@
 			getSpan: () => column.span,
 			onResize: (span) => setColumnSpan(space.id, column.id, span)
 		}}
-		class="absolute inset-y-0 -right-1 z-20 w-2 cursor-col-resize hover:bg-outline-variant"
-	></div>
+		class="group absolute inset-y-0 -right-4 z-20 flex w-2 cursor-col-resize items-center justify-center"
+	>
+		<div class="h-full w-0.5 rounded-full transition-colors group-hover:bg-outline-variant"></div>
+	</div>
 </div>

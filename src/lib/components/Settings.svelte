@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Settings as SettingsIcon } from 'lucide-svelte';
-	import { Switch } from 'bits-ui';
+	import { Switch, ToggleGroup } from 'bits-ui';
 	import {
 		settings,
 		modes,
@@ -21,6 +21,9 @@
 		serif: "'Lora Variable', Georgia, 'Times New Roman', serif",
 		mono: "'JetBrains Mono Variable', ui-monospace, 'SF Mono', monospace"
 	};
+
+	const itemClass =
+		'flex h-6 w-16 cursor-pointer items-center justify-center rounded-md text-sm data-[state=on]:bg-primary data-[state=on]:text-on-primary data-[state=off]:bg-surface-variant/40 data-[state=off]:text-on-surface focus:outline-none';
 
 	let open = $state(false);
 </script>
@@ -43,53 +46,58 @@
 
 	<div class="mb-2 flex items-center justify-between px-0.5">
 		<span class="text-sm text-on-surface">Mode</span>
-		<div class="flex items-center gap-1">
+		<ToggleGroup.Root
+			type="single"
+			value={$settings.mode}
+			onValueChange={(v) => v && setMode(v as Mode)}
+			class="flex items-center gap-1"
+		>
 			{#each modes as m (m.value)}
-				<button
-					type="button"
-					title={m.label}
-					onclick={() => setMode(m.value as Mode)}
-					class="h-6 w-16 cursor-pointer rounded-md text-sm focus:ring-2 focus:ring-primary focus:outline-none"
-					style={`background-color: ${$settings.mode === m.value ? 'var(--primary)' : 'color-mix(in srgb, var(--surface-variant) 40%, transparent)'}; color: ${$settings.mode === m.value ? 'var(--on-primary)' : 'var(--on-surface)'}`}
-				>
+				<ToggleGroup.Item value={m.value} class={itemClass}>
 					{m.label}
-				</button>
+				</ToggleGroup.Item>
 			{/each}
-		</div>
+		</ToggleGroup.Root>
 	</div>
 
 	<div class="mb-2 flex items-center justify-between px-0.5">
 		<span class="text-sm text-on-surface">UI font</span>
-		<div class="flex items-center gap-1">
+		<ToggleGroup.Root
+			type="single"
+			value={$settings.uiFont}
+			onValueChange={(v) => v && setUiFont(v as FontId)}
+			class="flex items-center gap-1"
+		>
 			{#each fonts as f (f.value)}
-				<button
-					type="button"
-					title={`UI font: ${f.label}`}
-					onclick={() => setUiFont(f.value as FontId)}
-					class="h-6 w-16 cursor-pointer rounded-md text-sm focus:ring-2 focus:ring-primary focus:outline-none"
-					style={`font-family: ${fontStack[f.value]}; background-color: ${$settings.uiFont === f.value ? 'var(--primary)' : 'color-mix(in srgb, var(--surface-variant) 40%, transparent)'}; color: ${$settings.uiFont === f.value ? 'var(--on-primary)' : 'var(--on-surface)'}`}
+				<ToggleGroup.Item
+					value={f.value}
+					class={itemClass}
+					style={`font-family: ${fontStack[f.value]}`}
 				>
 					{f.label}
-				</button>
+				</ToggleGroup.Item>
 			{/each}
-		</div>
+		</ToggleGroup.Root>
 	</div>
 
 	<div class="mb-2 flex items-center justify-between px-0.5">
 		<span class="text-sm text-on-surface">Content font</span>
-		<div class="flex items-center gap-1">
+		<ToggleGroup.Root
+			type="single"
+			value={$settings.contentFont}
+			onValueChange={(v) => v && setContentFont(v as FontId)}
+			class="flex items-center gap-1"
+		>
 			{#each fonts as f (f.value)}
-				<button
-					type="button"
-					title={`Content font: ${f.label}`}
-					onclick={() => setContentFont(f.value as FontId)}
-					class="h-6 w-16 cursor-pointer rounded-md text-sm focus:ring-2 focus:ring-primary focus:outline-none"
-					style={`font-family: ${fontStack[f.value]}; background-color: ${$settings.contentFont === f.value ? 'var(--primary)' : 'color-mix(in srgb, var(--surface-variant) 40%, transparent)'}; color: ${$settings.contentFont === f.value ? 'var(--on-primary)' : 'var(--on-surface)'}`}
+				<ToggleGroup.Item
+					value={f.value}
+					class={itemClass}
+					style={`font-family: ${fontStack[f.value]}`}
 				>
 					{f.label}
-				</button>
+				</ToggleGroup.Item>
 			{/each}
-		</div>
+		</ToggleGroup.Root>
 	</div>
 
 	<div class="flex items-center justify-between px-0.5 py-1">
