@@ -93,7 +93,7 @@
 			</div>
 		</div>
 	{:else}
-		<div class="flex flex-col gap-3">
+		<div class="flex flex-col gap-4">
 			{#each column.cards as card (card.id)}
 				<Card {space} {column} {card} {onDragStart} autofocus={card.id === focusCardId} />
 			{/each}
