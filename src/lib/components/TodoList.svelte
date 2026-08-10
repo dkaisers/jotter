@@ -110,7 +110,7 @@
 				aria-checked={todo.done}
 				title={todo.done ? 'Mark as not done' : 'Mark as done'}
 				onclick={() => toggleTodo(todo.id, !todo.done)}
-				class="mt-1 flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded-full border text-on-surface hover:border-primary hover:text-primary focus:outline-none"
+				class="mt-[3px] flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded-full border text-on-surface hover:border-primary hover:text-primary focus:outline-none"
 				class:border-primary={todo.done || todo.flagged}
 				class:border-outline-variant={!todo.done && !todo.flagged}
 				class:bg-primary-container={todo.done}
@@ -180,7 +180,7 @@
 		class="flex items-start gap-2 pl-2"
 	>
 		<span
-			class="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-dashed border-outline-variant opacity-60"
+			class="mt-[3px] flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-dashed border-outline-variant opacity-60"
 			aria-hidden="true"
 		></span>
 		<textarea
