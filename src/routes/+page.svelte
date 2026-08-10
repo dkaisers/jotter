@@ -34,7 +34,8 @@
 				style={`flex-grow: ${leftover}; flex-basis: 0`}
 			>
 				<div
-					class="flex flex-1 flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-outline-variant px-3 py-6"
+					class="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-outline-variant px-3 py-6"
+					class:flex-1={cols.length === 0}
 				>
 					{#if cols.length === 0}
 						<p class="text-sm text-on-surface-variant">

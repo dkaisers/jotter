@@ -64,10 +64,14 @@
 	}
 </script>
 
-<div data-column-id={column.id} class="relative flex h-full min-w-0 flex-col">
+<div
+	data-column-id={column.id}
+	class="relative flex min-w-0 flex-col"
+	class:h-full={column.cards.length > 0}
+>
 	{#if column.cards.length === 0}
 		<div
-			class="flex flex-1 flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-outline-variant px-3 py-6"
+			class="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-outline-variant px-3 py-6"
 		>
 			<div class="flex items-center gap-2">
 				<button
