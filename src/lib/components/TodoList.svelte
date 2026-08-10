@@ -164,7 +164,7 @@
 					type="button"
 					title="Delete todo"
 					onclick={() => removeTodo(space.id, column.id, card.id, todo.id)}
-					class="flex h-4 w-6 cursor-pointer items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface hover:text-on-surface focus:ring-2 focus:ring-primary focus:outline-none"
+					class="flex h-4 w-6 cursor-pointer items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface hover:text-on-surface focus:outline-none"
 				>
 					<Trash2 class="size-3.5" />
 				</button>
