@@ -12,7 +12,7 @@
 	import { onMount } from 'svelte';
 	import Settings from './Settings.svelte';
 	import Help from './Help.svelte';
-	import { spaceHasFlagged } from '$lib/workspace';
+	import { spaceHasFlagged, spaceIsEmpty } from '$lib/workspace';
 
 	let scrollEl: HTMLElement | undefined = $state();
 	let canLeft = $state(false);
@@ -160,6 +160,7 @@
 						onclick={() => setActiveSpace(space.id)}
 						ondblclick={() => startRename(space.id, space.name)}
 						class="cursor-pointer active:cursor-grabbing"
+						class:opacity-50={spaceIsEmpty(space)}
 						class:text-on-surface={active?.id === space.id}
 						class:text-on-surface-variant={active?.id !== space.id}
 					>

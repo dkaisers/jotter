@@ -205,6 +205,11 @@ export function spaceHasFlagged(space: Space): boolean {
 	);
 }
 
+/** Whether a space has no cards at all (no todo lists and no notes). */
+export function spaceIsEmpty(space: Space): boolean {
+	return space.columns.every((c) => c.cards.length === 0);
+}
+
 function updateSpace(spaceId: string, fn: (space: Space) => Space) {
 	workspace.update((w) => ({
 		...w,
