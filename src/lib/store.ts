@@ -38,49 +38,53 @@ function clampSpan(v: unknown): number {
 	return Math.min(TOTAL_UNITS, Math.max(1, Math.round(n)));
 }
 
+function isRecord(v: unknown): v is Record<string, unknown> {
+	return !!v && typeof v === 'object';
+}
+
+function asString(v: unknown): string | null {
+	return typeof v === 'string' ? v : null;
+}
+
+function sanitizeTodo(raw: unknown): TodoItem | null {
+	if (!isRecord(raw) || typeof raw.text !== 'string') return null;
+	return {
+		id: asString(raw.id) ?? newId(),
+		text: raw.text,
+		done: !!raw.done,
+		flagged: !!raw.flagged
+	};
+}
+
+function sanitizeCard(raw: unknown): Card | null {
+	if (!isRecord(raw)) return null;
+	const id = asString(raw.id) ?? newId();
+	const title = asString(raw.title) ?? (raw.type === 'todo' ? 'Todos' : 'Note');
+	if (raw.type === 'todo') {
+		const todos = Array.isArray(raw.todos)
+			? raw.todos.map(sanitizeTodo).filter((t): t is TodoItem => !!t)
+			: [];
+		return { type: 'todo', id, title, todos };
+	}
+	if (raw.type === 'note') {
+		return { type: 'note', id, title, text: asString(raw.text) ?? '' };
+	}
+	return null;
+}
+
+function sanitizeColumn(raw: unknown): Column | null {
+	if (!isRecord(raw) || !Array.isArray(raw.cards)) return null;
+	const cards = raw.cards.map(sanitizeCard).filter((c): c is Card => !!c);
+	return {
+		id: asString(raw.id) ?? newId(),
+		span: clampSpan(raw.span),
+		cards
+	};
+}
+
 function sanitizeColumns(raw: unknown): Column[] {
 	if (!Array.isArray(raw)) return defaultColumns();
-	const cols: Column[] = [];
-	for (const item of raw) {
-		if (!item || typeof item !== 'object') continue;
-		const it = item as Record<string, unknown>;
-		if (!Array.isArray(it.cards)) continue;
-		const cards: Card[] = [];
-		for (const c of it.cards) {
-			if (!c || typeof c !== 'object') continue;
-			const card = c as Record<string, unknown>;
-			if (card.type !== 'todo' && card.type !== 'note') continue;
-			const id = typeof card.id === 'string' ? card.id : newId();
-			const title =
-				typeof card.title === 'string' ? card.title : card.type === 'todo' ? 'Todos' : 'Note';
-			if (card.type === 'todo') {
-				const list = Array.isArray(card.todos) ? card.todos : [];
-				cards.push({
-					type: 'todo',
-					id,
-					title,
-					todos: list
-						.filter((t): t is TodoItem => !!t && typeof (t as TodoItem).text === 'string')
-						.map((t) => ({
-							id: typeof t.id === 'string' ? t.id : newId(),
-							text: t.text,
-							done: !!t.done,
-							flagged: !!t.flagged
-						}))
-				});
-			} else {
-				cards.push({
-					type: 'note',
-					id,
-					title,
-					text: typeof card.text === 'string' ? card.text : ''
-				});
-			}
-		}
-		const span = clampSpan(it.span);
-		cols.push({ id: typeof it.id === 'string' ? it.id : newId(), span, cards });
-	}
-	return cols;
+	return raw.map(sanitizeColumn).filter((c): c is Column => !!c);
 }
 
 function defaultSpace(): Space {

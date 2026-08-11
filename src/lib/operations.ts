@@ -1,5 +1,5 @@
 import { get } from 'svelte/store';
-import { settings } from '$lib/theme';
+import { settings, type TodoMode } from '$lib/theme';
 import { totalSpan } from './selectors';
 import {
 	workspace,
@@ -97,6 +97,23 @@ export function removeCard(spaceId: string, columnId: string, cardId: string) {
 	});
 }
 
+/** Pulls a card out of its column, returning the card and the columns without it. */
+function takeCard(
+	columns: Column[],
+	cardId: string
+): { columns: Column[]; card: Card | undefined } {
+	let card: Card | undefined;
+	const without = columns.map((c) => {
+		const found = c.cards.find((x) => x.id === cardId);
+		if (found) {
+			card = found;
+			return { ...c, cards: c.cards.filter((x) => x.id !== cardId) };
+		}
+		return c;
+	});
+	return { columns: without, card };
+}
+
 /** Moves a card to a column at an index. Returns false if source/target are missing. */
 export function moveCard(
 	spaceId: string,
@@ -106,21 +123,13 @@ export function moveCard(
 ): boolean {
 	let ok = false;
 	updateSpace(spaceId, (s) => {
-		let card: Card | undefined;
-		const without = s.columns.map((c) => {
-			const found = c.cards.find((x) => x.id === cardId);
-			if (found) {
-				card = found;
-				return { ...c, cards: c.cards.filter((x) => x.id !== cardId) };
-			}
-			return c;
-		});
+		const { columns: without, card } = takeCard(s.columns, cardId);
 		if (!card) return s;
 		const next = without.map((c) => {
 			if (c.id !== toColumnId) return c;
 			const cards = [...c.cards];
 			const idx = Math.max(0, Math.min(cards.length, index));
-			cards.splice(idx, 0, card!);
+			cards.splice(idx, 0, card);
 			return { ...c, cards };
 		});
 		ok = next.some((c) => c.id === toColumnId);
@@ -135,15 +144,7 @@ export function moveCard(
 /** Moves a card into a brand-new column occupying the given span of leftover space. */
 export function moveCardToNewColumn(spaceId: string, cardId: string, span: number) {
 	updateSpace(spaceId, (s) => {
-		let card: Card | undefined;
-		const without = s.columns.map((c) => {
-			const found = c.cards.find((x) => x.id === cardId);
-			if (found) {
-				card = found;
-				return { ...c, cards: c.cards.filter((x) => x.id !== cardId) };
-			}
-			return c;
-		});
+		const { columns: without, card } = takeCard(s.columns, cardId);
 		if (!card) return s;
 		// keep the emptied source column in place; the new column takes the slot position
 		return {
@@ -206,6 +207,37 @@ function applyTodoSort(
 	return ordered;
 }
 
+/** Applies a done-state change to one todo card according to the auto-todo-handling mode. */
+function applyTodoDone(
+	card: Card,
+	todoId: string,
+	done: boolean,
+	todoMode: TodoMode,
+	importantToTop: boolean,
+	doneToBottom: boolean,
+	keepImportant: boolean
+): Card {
+	if (card.type !== 'todo') return card;
+	const idx = card.todos.findIndex((t) => t.id === todoId);
+	if (idx === -1) return card;
+
+	if (done && todoMode === 'delete') {
+		if (keepImportant && card.todos[idx].flagged) {
+			return {
+				...card,
+				todos: card.todos.map((t) => (t.id === todoId ? { ...t, done: true } : t))
+			};
+		}
+		return { ...card, todos: card.todos.filter((t) => t.id !== todoId) };
+	}
+
+	const next = card.todos.map((t) => (t.id === todoId ? { ...t, done } : t));
+	if (todoMode === 'sort') {
+		return { ...card, todos: applyTodoSort(next, importantToTop, doneToBottom) };
+	}
+	return { ...card, todos: next };
+}
+
 /** Sets a todo's done state according to the auto-todo-handling mode. */
 export function setTodoDone(
 	spaceId: string,
@@ -215,27 +247,9 @@ export function setTodoDone(
 	done: boolean
 ) {
 	const { todoMode, importantToTop, doneToBottom, keepImportant } = get(settings);
-	mapCard(spaceId, columnId, cardId, (card) => {
-		if (card.type !== 'todo') return card;
-		const idx = card.todos.findIndex((t) => t.id === todoId);
-		if (idx === -1) return card;
-
-		if (done && todoMode === 'delete') {
-			if (keepImportant && card.todos[idx].flagged) {
-				return {
-					...card,
-					todos: card.todos.map((t) => (t.id === todoId ? { ...t, done: true } : t))
-				};
-			}
-			return { ...card, todos: card.todos.filter((t) => t.id !== todoId) };
-		}
-
-		const next = card.todos.map((t) => (t.id === todoId ? { ...t, done } : t));
-		if (todoMode === 'sort') {
-			return { ...card, todos: applyTodoSort(next, importantToTop, doneToBottom) };
-		}
-		return { ...card, todos: next };
-	});
+	mapCard(spaceId, columnId, cardId, (card) =>
+		applyTodoDone(card, todoId, done, todoMode, importantToTop, doneToBottom, keepImportant)
+	);
 }
 
 /** Stably sorts a todo card's todos according to the auto-todo-handling toggles. */

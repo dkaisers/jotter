@@ -95,20 +95,29 @@ function initialSettings(): Settings {
 		let keepImportant = DEFAULT_SETTINGS.keepImportant;
 		let spellcheck = DEFAULT_SETTINGS.spellcheck;
 		try {
-			const stored = window.localStorage.getItem(STORAGE_KEY);
-			if (stored) {
-				const parsed = JSON.parse(stored);
-				if (modes.some((m) => m.value === parsed.mode)) mode = parsed.mode;
-				if (todoModes.some((m) => m.value === parsed.todoMode)) todoMode = parsed.todoMode;
-				if (typeof parsed.importantToTop === 'boolean') importantToTop = parsed.importantToTop;
-				if (typeof parsed.doneToBottom === 'boolean') doneToBottom = parsed.doneToBottom;
-				if (typeof parsed.keepImportant === 'boolean') keepImportant = parsed.keepImportant;
-				if (typeof parsed.spellcheck === 'boolean') spellcheck = parsed.spellcheck;
-				// migrate the old two toggles into the mode
-				if (!todoModes.some((m) => m.value === parsed.todoMode)) {
-					if (parsed.autoDeleteDone === true) todoMode = 'delete';
-					else if (parsed.autoSortDone === true) todoMode = 'sort';
-				}
+			const parsed: Record<string, unknown> = JSON.parse(
+				window.localStorage.getItem(STORAGE_KEY) ?? ''
+			);
+			mode = pick(
+				parsed,
+				'mode',
+				modes.map((m) => m.value),
+				mode
+			);
+			todoMode = pick(
+				parsed,
+				'todoMode',
+				todoModes.map((m) => m.value),
+				todoMode
+			);
+			importantToTop = pickBool(parsed, 'importantToTop', importantToTop);
+			doneToBottom = pickBool(parsed, 'doneToBottom', doneToBottom);
+			keepImportant = pickBool(parsed, 'keepImportant', keepImportant);
+			spellcheck = pickBool(parsed, 'spellcheck', spellcheck);
+			// migrate the old two toggles into the mode
+			if (!todoModes.some((m) => m.value === parsed.todoMode)) {
+				if (pickBool(parsed, 'autoDeleteDone', false)) todoMode = 'delete';
+				else if (pickBool(parsed, 'autoSortDone', false)) todoMode = 'sort';
 			}
 		} catch {
 			// ignore
@@ -126,6 +135,17 @@ function initialSettings(): Settings {
 		};
 	}
 	return DEFAULT_SETTINGS;
+}
+
+/** Reads a value from a parsed object if it's one of the allowed values. */
+function pick<T>(obj: Record<string, unknown>, key: string, allowed: T[], fallback: T): T {
+	const v = obj[key];
+	return allowed.includes(v as T) ? (v as T) : fallback;
+}
+
+/** Reads a boolean from a parsed object. */
+function pickBool(obj: Record<string, unknown>, key: string, fallback: boolean): boolean {
+	return typeof obj[key] === 'boolean' ? (obj[key] as boolean) : fallback;
 }
 
 export const settings = writable<Settings>(initialSettings());
