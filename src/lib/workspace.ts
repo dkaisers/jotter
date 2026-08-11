@@ -230,6 +230,34 @@ function updateSpace(spaceId: string, fn: (space: Space) => Space) {
 	}));
 }
 
+function mapColumn(spaceId: string, columnId: string, fn: (col: Column) => Column) {
+	updateSpace(spaceId, (s) => ({
+		...s,
+		columns: s.columns.map((c) => (c.id === columnId ? fn(c) : c))
+	}));
+}
+
+function mapCard(spaceId: string, columnId: string, cardId: string, fn: (card: Card) => Card) {
+	mapColumn(spaceId, columnId, (col) => ({
+		...col,
+		cards: col.cards.map((x) => (x.id === cardId ? fn(x) : x))
+	}));
+}
+
+function mapTodo(
+	spaceId: string,
+	columnId: string,
+	cardId: string,
+	todoId: string,
+	fn: (todo: TodoItem) => TodoItem
+) {
+	mapCard(spaceId, columnId, cardId, (card) =>
+		card.type === 'todo'
+			? { ...card, todos: card.todos.map((t) => (t.id === todoId ? fn(t) : t)) }
+			: card
+	);
+}
+
 export function totalSpan(cols: Column[]): number {
 	return cols.reduce((sum, c) => sum + c.span, 0);
 }
@@ -303,10 +331,7 @@ export function addColumn(spaceId: string, type: CardType, span: number) {
 
 export function addCard(spaceId: string, columnId: string, type: CardType): string {
 	const card = type === 'todo' ? emptyTodoCard() : emptyNoteCard();
-	updateSpace(spaceId, (s) => ({
-		...s,
-		columns: s.columns.map((c) => (c.id === columnId ? { ...c, cards: [...c.cards, card] } : c))
-	}));
+	mapColumn(spaceId, columnId, (col) => ({ ...col, cards: [...col.cards, card] }));
 	return card.id;
 }
 
@@ -398,14 +423,7 @@ export function setColumnSpan(spaceId: string, columnId: string, newSpan: number
 }
 
 export function setCardTitle(spaceId: string, columnId: string, cardId: string, title: string) {
-	updateSpace(spaceId, (s) => ({
-		...s,
-		columns: s.columns.map((c) =>
-			c.id === columnId
-				? { ...c, cards: c.cards.map((x) => (x.id === cardId ? { ...x, title } : x)) }
-				: c
-		)
-	}));
+	mapCard(spaceId, columnId, cardId, (card) => ({ ...card, title }));
 }
 
 export function updateTodo(
@@ -415,21 +433,7 @@ export function updateTodo(
 	todoId: string,
 	patch: Partial<TodoItem>
 ) {
-	updateSpace(spaceId, (s) => ({
-		...s,
-		columns: s.columns.map((c) =>
-			c.id === columnId
-				? {
-						...c,
-						cards: c.cards.map((x) =>
-							x.type === 'todo' && x.id === cardId
-								? { ...x, todos: x.todos.map((t) => (t.id === todoId ? { ...t, ...patch } : t)) }
-								: x
-						)
-					}
-				: c
-		)
-	}));
+	mapTodo(spaceId, columnId, cardId, todoId, (t) => ({ ...t, ...patch }));
 }
 
 /** Stably reorders todos: important (flagged undone) first, and done last when enabled. */
@@ -458,98 +462,56 @@ export function setTodoDone(
 	done: boolean
 ) {
 	const { todoMode, importantToTop, doneToBottom, keepImportant } = get(settings);
-	updateSpace(spaceId, (s) => ({
-		...s,
-		columns: s.columns.map((c) =>
-			c.id === columnId
-				? {
-						...c,
-						cards: c.cards.map((x) => {
-							if (x.type !== 'todo' || x.id !== cardId) return x;
-							const idx = x.todos.findIndex((t) => t.id === todoId);
-							if (idx === -1) return x;
+	mapCard(spaceId, columnId, cardId, (card) => {
+		if (card.type !== 'todo') return card;
+		const idx = card.todos.findIndex((t) => t.id === todoId);
+		if (idx === -1) return card;
 
-							if (done && todoMode === 'delete') {
-								if (keepImportant && x.todos[idx].flagged) {
-									return {
-										...x,
-										todos: x.todos.map((t) => (t.id === todoId ? { ...t, done: true } : t))
-									};
-								}
-								return { ...x, todos: x.todos.filter((t) => t.id !== todoId) };
-							}
+		if (done && todoMode === 'delete') {
+			if (keepImportant && card.todos[idx].flagged) {
+				return {
+					...card,
+					todos: card.todos.map((t) => (t.id === todoId ? { ...t, done: true } : t))
+				};
+			}
+			return { ...card, todos: card.todos.filter((t) => t.id !== todoId) };
+		}
 
-							const next = x.todos.map((t) => (t.id === todoId ? { ...t, done } : t));
-							if (todoMode === 'sort') {
-								return { ...x, todos: applyTodoSort(next, importantToTop, doneToBottom) };
-							}
-							return { ...x, todos: next };
-						})
-					}
-				: c
-		)
-	}));
+		const next = card.todos.map((t) => (t.id === todoId ? { ...t, done } : t));
+		if (todoMode === 'sort') {
+			return { ...card, todos: applyTodoSort(next, importantToTop, doneToBottom) };
+		}
+		return { ...card, todos: next };
+	});
 }
 
 /** Stably sorts a todo card's todos according to the auto-todo-handling toggles. */
 export function sortTodos(spaceId: string, columnId: string, cardId: string) {
 	const { importantToTop, doneToBottom } = get(settings);
-	updateSpace(spaceId, (s) => ({
-		...s,
-		columns: s.columns.map((c) =>
-			c.id === columnId
-				? {
-						...c,
-						cards: c.cards.map((x) =>
-							x.type === 'todo' && x.id === cardId
-								? { ...x, todos: applyTodoSort(x.todos, importantToTop, doneToBottom) }
-								: x
-						)
-					}
-				: c
-		)
-	}));
+	mapCard(spaceId, columnId, cardId, (card) =>
+		card.type === 'todo'
+			? { ...card, todos: applyTodoSort(card.todos, importantToTop, doneToBottom) }
+			: card
+	);
 }
 
 export function addTodo(spaceId: string, columnId: string, cardId: string, text: string) {
 	const trimmed = text.trim();
 	if (!trimmed) return;
-	updateSpace(spaceId, (s) => ({
-		...s,
-		columns: s.columns.map((c) =>
-			c.id === columnId
-				? {
-						...c,
-						cards: c.cards.map((x) =>
-							x.type === 'todo' && x.id === cardId
-								? {
-										...x,
-										todos: [...x.todos, { id: newId(), text: trimmed, done: false, flagged: false }]
-									}
-								: x
-						)
-					}
-				: c
-		)
-	}));
+	mapCard(spaceId, columnId, cardId, (card) =>
+		card.type === 'todo'
+			? {
+					...card,
+					todos: [...card.todos, { id: newId(), text: trimmed, done: false, flagged: false }]
+				}
+			: card
+	);
 }
 
 export function removeTodo(spaceId: string, columnId: string, cardId: string, todoId: string) {
-	updateSpace(spaceId, (s) => ({
-		...s,
-		columns: s.columns.map((c) =>
-			c.id === columnId
-				? {
-						...c,
-						cards: c.cards.map((x) =>
-							x.type === 'todo' && x.id === cardId
-								? { ...x, todos: x.todos.filter((t) => t.id !== todoId) }
-								: x
-						)
-					}
-				: c
-		)
-	}));
+	mapCard(spaceId, columnId, cardId, (card) =>
+		card.type === 'todo' ? { ...card, todos: card.todos.filter((t) => t.id !== todoId) } : card
+	);
 }
 
 export function reorderTodo(
@@ -560,35 +522,15 @@ export function reorderTodo(
 	toIndex: number
 ) {
 	if (fromIndex === toIndex) return;
-	updateSpace(spaceId, (s) => ({
-		...s,
-		columns: s.columns.map((c) =>
-			c.id === columnId
-				? {
-						...c,
-						cards: c.cards.map((x) => {
-							if (x.type !== 'todo' || x.id !== cardId) return x;
-							const todos = [...x.todos];
-							const [moved] = todos.splice(fromIndex, 1);
-							todos.splice(toIndex, 0, moved);
-							return { ...x, todos };
-						})
-					}
-				: c
-		)
-	}));
+	mapCard(spaceId, columnId, cardId, (card) => {
+		if (card.type !== 'todo') return card;
+		const todos = [...card.todos];
+		const [moved] = todos.splice(fromIndex, 1);
+		todos.splice(toIndex, 0, moved);
+		return { ...card, todos };
+	});
 }
 
 export function updateNote(spaceId: string, columnId: string, cardId: string, text: string) {
-	updateSpace(spaceId, (s) => ({
-		...s,
-		columns: s.columns.map((c) =>
-			c.id === columnId
-				? {
-						...c,
-						cards: c.cards.map((x) => (x.type === 'note' && x.id === cardId ? { ...x, text } : x))
-					}
-				: c
-		)
-	}));
+	mapCard(spaceId, columnId, cardId, (card) => (card.type === 'note' ? { ...card, text } : card));
 }
