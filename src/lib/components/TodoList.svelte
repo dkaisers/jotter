@@ -12,6 +12,7 @@
 		type TodoItem
 	} from '$lib/workspace';
 	import { settings } from '$lib/theme';
+	import { startDrag } from '$lib/drag';
 
 	let {
 		space,
@@ -25,7 +26,6 @@
 	let draftEdit = $state('');
 	let draftInput: HTMLTextAreaElement | undefined = $state();
 	let editInput: HTMLTextAreaElement | undefined = $state();
-	let dragTodoId: string | null = $state(null);
 
 	function toggleTodo(todoId: string, done: boolean) {
 		setTodoDone(space.id, column.id, card.id, todoId, done);
@@ -59,29 +59,20 @@
 
 	function onDragStart(e: PointerEvent, todoId: string) {
 		e.preventDefault();
-		dragTodoId = todoId;
-		window.addEventListener('pointermove', onDragMove);
-		window.addEventListener('pointerup', onDragEnd);
-	}
-
-	function onDragMove(e: PointerEvent) {
-		if (!dragTodoId) return;
-		const el = document
-			.elementFromPoint(e.clientX, e.clientY)
-			?.closest('[data-todo-id]') as HTMLElement | null;
-		if (!el) return;
-		const targetId = el.dataset.todoId;
-		if (!targetId || targetId === dragTodoId) return;
-		const fromIndex = card.todos.findIndex((t) => t.id === dragTodoId);
-		const toIndex = card.todos.findIndex((t) => t.id === targetId);
-		if (fromIndex === -1 || toIndex === -1) return;
-		reorderTodo(space.id, column.id, card.id, fromIndex, toIndex);
-	}
-
-	function onDragEnd() {
-		dragTodoId = null;
-		window.removeEventListener('pointermove', onDragMove);
-		window.removeEventListener('pointerup', onDragEnd);
+		startDrag({
+			onMove: (ev) => {
+				const el = document
+					.elementFromPoint(ev.clientX, ev.clientY)
+					?.closest('[data-todo-id]') as HTMLElement | null;
+				if (!el) return;
+				const targetId = el.dataset.todoId;
+				if (!targetId || targetId === todoId) return;
+				const fromIndex = card.todos.findIndex((t) => t.id === todoId);
+				const toIndex = card.todos.findIndex((t) => t.id === targetId);
+				if (fromIndex === -1 || toIndex === -1) return;
+				reorderTodo(space.id, column.id, card.id, fromIndex, toIndex);
+			}
+		});
 	}
 
 	$effect(() => {

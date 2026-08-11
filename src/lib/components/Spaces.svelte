@@ -10,6 +10,7 @@
 		workspace
 	} from '$lib/workspace';
 	import { onMount } from 'svelte';
+	import { startDrag } from '$lib/drag';
 	import Settings from './Settings.svelte';
 	import Help from './Help.svelte';
 	import Confirm from './Confirm.svelte';
@@ -21,7 +22,6 @@
 	let editingId: string | null = $state(null);
 	let nameDraft = $state('');
 	let confirmingId: string | null = $state(null);
-	let dragId: string | null = $state(null);
 	let renameInput: HTMLInputElement | undefined = $state();
 
 	const active = $derived($activeSpace);
@@ -95,24 +95,15 @@
 
 	function onDragStart(e: PointerEvent, spaceId: string) {
 		e.preventDefault();
-		dragId = spaceId;
-		window.addEventListener('pointermove', onDragMove);
-		window.addEventListener('pointerup', onDragEnd);
-	}
-
-	function onDragMove(e: PointerEvent) {
-		if (!dragId) return;
-		const el = document.elementFromPoint(e.clientX, e.clientY);
-		const target = el?.closest('[data-space-id]') as HTMLElement | null;
-		if (!target) return;
-		const targetId = target.dataset.spaceId!;
-		if (targetId !== dragId) reorderSpace(dragId, targetId);
-	}
-
-	function onDragEnd() {
-		dragId = null;
-		window.removeEventListener('pointermove', onDragMove);
-		window.removeEventListener('pointerup', onDragEnd);
+		startDrag({
+			onMove: (ev) => {
+				const el = document.elementFromPoint(ev.clientX, ev.clientY);
+				const target = el?.closest('[data-space-id]') as HTMLElement | null;
+				if (!target) return;
+				const targetId = target.dataset.spaceId!;
+				if (targetId !== spaceId) reorderSpace(spaceId, targetId);
+			}
+		});
 	}
 
 	function nameOf(id: string | null): string {

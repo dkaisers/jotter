@@ -11,11 +11,11 @@
 		type Space
 	} from '$lib/workspace';
 	import { columnResize, TOTAL_UNITS } from '$lib/columnResize';
+	import { startDrag } from '$lib/drag';
 	import Card from './Card.svelte';
 
 	let { space, column }: { space: Space; column: Column } = $props();
 
-	let dragCardId = $state<string | null>(null);
 	let focusCardId = $state<string | null>(null);
 	let overSlot = $state(false);
 
@@ -25,42 +25,34 @@
 
 	function onDragStart(e: PointerEvent, cardId: string) {
 		e.preventDefault();
-		dragCardId = cardId;
-		window.addEventListener('pointermove', onDragMove);
-		window.addEventListener('pointerup', onDragEnd);
-	}
-
-	function onDragMove(e: PointerEvent) {
-		if (!dragCardId) return;
-		const el = document.elementFromPoint(e.clientX, e.clientY);
-		const slotEl = el?.closest('[data-empty-slot]') as HTMLElement | null;
-		if (slotEl) {
-			if (!overSlot) {
-				overSlot = true;
-				moveCardToNewColumn(space.id, dragCardId, TOTAL_UNITS - totalSpan(space.columns));
-			}
-			return;
-		}
-		overSlot = false;
-		const target = el?.closest('[data-column-id]') as HTMLElement | null;
-		if (!target) return;
-		const targetColumnId = target.dataset.columnId!;
-		const before = [...target.querySelectorAll('[data-card-id]')] as HTMLElement[];
-		let index = before.length;
-		for (let i = 0; i < before.length; i++) {
-			const r = before[i].getBoundingClientRect();
-			if (e.clientY < r.top + r.height / 2) {
-				index = i;
-				break;
-			}
-		}
-		moveCard(space.id, dragCardId, targetColumnId, index);
-	}
-
-	function onDragEnd() {
-		dragCardId = null;
-		window.removeEventListener('pointermove', onDragMove);
-		window.removeEventListener('pointerup', onDragEnd);
+		startDrag({
+			onMove: (ev) => {
+				const el = document.elementFromPoint(ev.clientX, ev.clientY);
+				const slotEl = el?.closest('[data-empty-slot]') as HTMLElement | null;
+				if (slotEl) {
+					if (!overSlot) {
+						overSlot = true;
+						moveCardToNewColumn(space.id, cardId, TOTAL_UNITS - totalSpan(space.columns));
+					}
+					return;
+				}
+				overSlot = false;
+				const target = el?.closest('[data-column-id]') as HTMLElement | null;
+				if (!target) return;
+				const targetColumnId = target.dataset.columnId!;
+				const before = [...target.querySelectorAll('[data-card-id]')] as HTMLElement[];
+				let index = before.length;
+				for (let i = 0; i < before.length; i++) {
+					const r = before[i].getBoundingClientRect();
+					if (ev.clientY < r.top + r.height / 2) {
+						index = i;
+						break;
+					}
+				}
+				moveCard(space.id, cardId, targetColumnId, index);
+			},
+			onEnd: () => (overSlot = false)
+		});
 	}
 </script>
 
