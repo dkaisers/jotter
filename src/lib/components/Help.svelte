@@ -18,7 +18,7 @@
 	</button>
 </div>
 
-<Modal {open} title="Help" onclose={() => (open = false)}>
+<Modal {open} title="Help" onclose={() => (open = false)} width="max-w-xl">
 	<div class="space-y-3 text-sm text-on-surface-variant">
 		<div>
 			<p class="text-on-surface">Spaces</p>

@@ -40,7 +40,7 @@
 	</nav>
 </footer>
 
-<Modal open={open !== null} title={open ? titles[open] : ''} onclose={close}>
+<Modal open={open !== null} title={open ? titles[open] : ''} onclose={close} width="max-w-xl">
 	{#if open === 'license'}
 		<p>jotter is released under the <span class="text-on-surface">MIT License</span>.</p>
 		<p class="mt-3">Copyright (c) 2026 Dominik Kaisers</p>

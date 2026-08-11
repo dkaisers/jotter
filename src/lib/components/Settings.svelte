@@ -20,6 +20,7 @@
 		type TodoMode
 	} from '$lib/theme';
 	import Modal from './Modal.svelte';
+	import Confirm from './Confirm.svelte';
 	import { exportWorkspace, parseBackup, applyImport } from '$lib/backup';
 	import { clearWorkspace } from '$lib/workspace';
 	import type { Workspace } from '$lib/workspace';
@@ -74,7 +75,7 @@
 	</button>
 </div>
 
-<Modal {open} title="Settings" onclose={() => (open = false)} width="max-w-lg">
+<Modal {open} title="Settings" onclose={() => (open = false)} width="max-w-xl">
 	<p class="mb-2 text-xs font-medium tracking-wide text-on-surface-variant uppercase">Appearance</p>
 
 	<div class="mb-2 flex items-center justify-between px-0.5">
@@ -299,31 +300,14 @@
 	{/if}
 </Modal>
 
-<Modal
+<Confirm
 	open={confirmClear}
 	title="Clear data"
+	message="This removes all spaces and their contents. This can't be undone."
+	confirmLabel="Clear"
 	onclose={() => (confirmClear = false)}
-	width="max-w-sm"
-	stacked
->
-	<p>This removes all spaces and their contents. This can't be undone.</p>
-	<div class="mt-4 flex items-center gap-2">
-		<button
-			type="button"
-			onclick={() => (confirmClear = false)}
-			class="h-8 flex-1 cursor-pointer rounded-md bg-surface-variant/40 text-sm text-on-surface hover:bg-surface-variant focus:outline-none"
-		>
-			Cancel
-		</button>
-		<button
-			type="button"
-			onclick={() => {
-				clearWorkspace();
-				confirmClear = false;
-			}}
-			class="h-8 flex-1 cursor-pointer rounded-md bg-error/15 text-sm font-semibold text-error hover:bg-error/25 focus:outline-none"
-		>
-			Clear
-		</button>
-	</div>
-</Modal>
+	onconfirm={() => {
+		clearWorkspace();
+		confirmClear = false;
+	}}
+/>

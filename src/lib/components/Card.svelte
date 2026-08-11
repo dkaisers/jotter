@@ -10,6 +10,7 @@
 	} from '$lib/workspace';
 	import TodoList from './TodoList.svelte';
 	import NoteArea from './NoteArea.svelte';
+	import Confirm from './Confirm.svelte';
 	import { settings } from '$lib/theme';
 
 	let {
@@ -120,43 +121,10 @@
 	</div>
 </div>
 
-{#if confirming}
-	<div
-		class="fixed inset-0 z-50 flex items-center justify-center bg-base/60 p-4"
-		role="dialog"
-		aria-modal="true"
-		aria-label="Delete card"
-		tabindex="-1"
-		onkeydown={(e) => {
-			if (e.key === 'Escape') confirming = false;
-		}}
-		onclick={(e) => {
-			if (e.target === e.currentTarget) confirming = false;
-		}}
-	>
-		<div class="w-72 border border-outline bg-surface shadow-xl">
-			<div class="border-b border-outline-variant px-4 py-3">
-				<h2 class="text-sm font-semibold text-on-surface">Delete “{card.title}”?</h2>
-			</div>
-			<div class="px-4 py-3 text-sm text-on-surface-variant">
-				This removes the card and its contents. This can't be undone.
-			</div>
-			<div class="flex justify-end gap-2 border-t border-outline-variant px-4 py-3">
-				<button
-					type="button"
-					onclick={() => (confirming = false)}
-					class="cursor-pointer rounded-md border border-outline-variant bg-surface-variant px-3 py-1 text-sm text-on-surface hover:bg-surface focus:ring-2 focus:ring-primary focus:outline-none"
-				>
-					Cancel
-				</button>
-				<button
-					type="button"
-					onclick={() => removeCard(space.id, column.id, card.id)}
-					class="accent-fill cursor-pointer rounded-md px-3 py-1 text-sm font-semibold hover:opacity-80 focus:ring-2 focus:ring-primary focus:outline-none"
-				>
-					Delete
-				</button>
-			</div>
-		</div>
-	</div>
-{/if}
+<Confirm
+	open={confirming}
+	title={`Delete “${card.title}”?`}
+	message="This removes the card and its contents. This can't be undone."
+	onclose={() => (confirming = false)}
+	onconfirm={() => removeCard(space.id, column.id, card.id)}
+/>

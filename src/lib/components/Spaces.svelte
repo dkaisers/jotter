@@ -12,6 +12,7 @@
 	import { onMount } from 'svelte';
 	import Settings from './Settings.svelte';
 	import Help from './Help.svelte';
+	import Confirm from './Confirm.svelte';
 	import { spaceHasFlagged, spaceIsEmpty } from '$lib/workspace';
 
 	let scrollEl: HTMLElement | undefined = $state();
@@ -219,46 +220,13 @@
 	<Settings />
 </div>
 
-{#if confirmingId}
-	<div
-		class="fixed inset-0 z-50 flex items-center justify-center bg-base/60 p-4"
-		role="dialog"
-		aria-modal="true"
-		aria-label="Delete space"
-		tabindex="-1"
-		onkeydown={(e) => {
-			if (e.key === 'Escape') confirmingId = null;
-		}}
-		onclick={(e) => {
-			if (e.target === e.currentTarget) confirmingId = null;
-		}}
-	>
-		<div class="w-72 border border-outline bg-surface shadow-xl">
-			<div class="border-b border-outline-variant px-4 py-3">
-				<h2 class="text-sm font-semibold text-on-surface">Delete “{nameOf(confirmingId)}”?</h2>
-			</div>
-			<div class="px-4 py-3 text-sm text-on-surface-variant">
-				This removes the space and everything in it. This can't be undone.
-			</div>
-			<div class="flex justify-end gap-2 border-t border-outline-variant px-4 py-3">
-				<button
-					type="button"
-					onclick={() => (confirmingId = null)}
-					class="cursor-pointer rounded-md border border-outline-variant bg-surface-variant px-3 py-1 text-sm text-on-surface hover:bg-surface focus:ring-2 focus:ring-primary focus:outline-none"
-				>
-					Cancel
-				</button>
-				<button
-					type="button"
-					onclick={() => {
-						removeSpace(confirmingId!);
-						confirmingId = null;
-					}}
-					class="accent-fill cursor-pointer rounded-md px-3 py-1 text-sm font-semibold hover:opacity-80 focus:ring-2 focus:ring-primary focus:outline-none"
-				>
-					Delete
-				</button>
-			</div>
-		</div>
-	</div>
-{/if}
+<Confirm
+	open={confirmingId !== null}
+	title={confirmingId ? `Delete “${nameOf(confirmingId)}”?` : ''}
+	message="This removes the space and everything in it. This can't be undone."
+	onclose={() => (confirmingId = null)}
+	onconfirm={() => {
+		removeSpace(confirmingId!);
+		confirmingId = null;
+	}}
+/>
