@@ -20,6 +20,9 @@
 		type TodoMode
 	} from '$lib/theme';
 	import Modal from './Modal.svelte';
+	import { exportWorkspace, parseBackup, applyImport } from '$lib/backup';
+	import { clearWorkspace } from '$lib/workspace';
+	import type { Workspace } from '$lib/workspace';
 
 	const fontStack: Record<FontId, string> = {
 		sans: "'Inter Variable', ui-sans-serif, system-ui, sans-serif",
@@ -31,6 +34,31 @@
 		'flex h-6 w-16 cursor-pointer items-center justify-center rounded-md text-sm data-[state=on]:bg-primary data-[state=on]:text-on-primary data-[state=off]:bg-surface-variant/40 data-[state=off]:text-on-surface focus:outline-none';
 
 	let open = $state(false);
+	let pendingImport: Workspace | null = $state(null);
+	let confirmClear = $state(false);
+	let fileInput: HTMLInputElement | undefined = $state();
+
+	function onFileSelected(e: Event) {
+		const file = (e.currentTarget as HTMLInputElement).files?.[0];
+		if (!file) return;
+		const reader = new FileReader();
+		reader.onload = () => {
+			const parsed = parseBackup(String(reader.result ?? ''));
+			if (parsed) {
+				pendingImport = parsed;
+			} else {
+				alert('That file is not a valid jotter backup.');
+			}
+		};
+		reader.readAsText(file);
+		(e.currentTarget as HTMLInputElement).value = '';
+	}
+
+	function doImport(mode: 'replace' | 'merge') {
+		if (!pendingImport) return;
+		applyImport(pendingImport, mode);
+		pendingImport = null;
+	}
 </script>
 
 <div class="relative flex self-stretch">
@@ -46,7 +74,7 @@
 	</button>
 </div>
 
-<Modal {open} title="Settings" onclose={() => (open = false)}>
+<Modal {open} title="Settings" onclose={() => (open = false)} width="max-w-lg">
 	<p class="mb-2 text-xs font-medium tracking-wide text-on-surface-variant uppercase">Appearance</p>
 
 	<div class="mb-2 flex items-center justify-between px-0.5">
@@ -201,5 +229,101 @@
 				/>
 			</Switch.Root>
 		</div>
+	</div>
+
+	<div class="mt-4 border-t border-outline-variant pt-3">
+		<p class="mb-1.5 text-xs font-medium tracking-wide text-on-surface-variant uppercase">Data</p>
+		<div class="flex items-center gap-2 px-0.5">
+			<button
+				type="button"
+				onclick={exportWorkspace}
+				class="h-7 flex-1 cursor-pointer rounded-md bg-surface-variant/40 text-sm text-on-surface hover:bg-surface-variant focus:outline-none"
+			>
+				Export data
+			</button>
+			<button
+				type="button"
+				onclick={() => fileInput?.click()}
+				class="h-7 flex-1 cursor-pointer rounded-md bg-surface-variant/40 text-sm text-on-surface hover:bg-surface-variant focus:outline-none"
+			>
+				Import data
+			</button>
+			<button
+				type="button"
+				onclick={() => (confirmClear = true)}
+				class="h-7 flex-1 cursor-pointer rounded-md bg-surface-variant/40 text-sm text-error hover:bg-surface-variant focus:outline-none"
+			>
+				Clear data
+			</button>
+		</div>
+		<input
+			bind:this={fileInput}
+			type="file"
+			accept=".json,application/json"
+			class="hidden"
+			onchange={onFileSelected}
+		/>
+	</div>
+</Modal>
+
+<Modal
+	open={pendingImport !== null}
+	title="Import data"
+	onclose={() => (pendingImport = null)}
+	width="max-w-sm"
+	stacked
+>
+	{#if pendingImport}
+		<p>
+			This backup contains {pendingImport.spaces.length} space{pendingImport.spaces.length === 1
+				? ''
+				: 's'}.
+		</p>
+		<p class="mt-2">Replace your current data, or merge the imported spaces into it?</p>
+		<div class="mt-4 flex items-center gap-2">
+			<button
+				type="button"
+				onclick={() => doImport('merge')}
+				class="h-8 flex-1 cursor-pointer rounded-md bg-surface-variant/40 text-sm text-on-surface hover:bg-surface-variant focus:outline-none"
+			>
+				Merge
+			</button>
+			<button
+				type="button"
+				onclick={() => doImport('replace')}
+				class="accent-fill h-8 flex-1 cursor-pointer rounded-md text-sm font-semibold hover:opacity-80 focus:outline-none"
+			>
+				Replace
+			</button>
+		</div>
+	{/if}
+</Modal>
+
+<Modal
+	open={confirmClear}
+	title="Clear data"
+	onclose={() => (confirmClear = false)}
+	width="max-w-sm"
+	stacked
+>
+	<p>This removes all spaces and their contents. This can't be undone.</p>
+	<div class="mt-4 flex items-center gap-2">
+		<button
+			type="button"
+			onclick={() => (confirmClear = false)}
+			class="h-8 flex-1 cursor-pointer rounded-md bg-surface-variant/40 text-sm text-on-surface hover:bg-surface-variant focus:outline-none"
+		>
+			Cancel
+		</button>
+		<button
+			type="button"
+			onclick={() => {
+				clearWorkspace();
+				confirmClear = false;
+			}}
+			class="h-8 flex-1 cursor-pointer rounded-md bg-error/15 text-sm font-semibold text-error hover:bg-error/25 focus:outline-none"
+		>
+			Clear
+		</button>
 	</div>
 </Modal>

@@ -7,11 +7,15 @@
 		open,
 		title,
 		onclose,
+		width = 'max-w-md',
+		stacked = false,
 		children
 	}: {
 		open: boolean;
 		title: string;
 		onclose: () => void;
+		width?: string;
+		stacked?: boolean;
 		children: Snippet;
 	} = $props();
 </script>
@@ -23,9 +27,11 @@
 	}}
 >
 	<Dialog.Portal>
-		<Dialog.Overlay class="fixed inset-0 z-40 bg-black/40" />
+		<Dialog.Overlay class={`fixed inset-0 bg-black/40 ${stacked ? 'z-[60]' : 'z-40'}`} />
 		<Dialog.Content
-			class="fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl border border-outline bg-surface p-6 shadow-xl shadow-black/25 focus:outline-none"
+			class={`fixed top-1/2 left-1/2 w-[calc(100vw-2rem)] ${width} -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl border border-outline bg-surface p-6 shadow-xl shadow-black/25 focus:outline-none ${
+				stacked ? 'z-[70]' : 'z-50'
+			}`}
 		>
 			<div class="flex items-start justify-between gap-4">
 				<Dialog.Title class="font-semibold text-base text-on-surface">{title}</Dialog.Title>

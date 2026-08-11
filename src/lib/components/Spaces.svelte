@@ -42,11 +42,29 @@
 		canRight = scrollEl.scrollLeft + scrollEl.clientWidth < scrollEl.scrollWidth - 1;
 	}
 
+	function onWheel(e: WheelEvent) {
+		if (!scrollEl) return;
+		if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+			e.preventDefault();
+			scrollEl.scrollBy({ left: e.deltaY, behavior: 'smooth' });
+		}
+	}
+
 	onMount(() => {
-		updateArrows();
 		const el = scrollEl;
 		el?.addEventListener('scroll', updateArrows, { passive: true });
-		return () => el?.removeEventListener('scroll', updateArrows);
+		el?.addEventListener('wheel', onWheel, { passive: false });
+		window.addEventListener('resize', updateArrows);
+		return () => {
+			el?.removeEventListener('scroll', updateArrows);
+			el?.removeEventListener('wheel', onWheel);
+			window.removeEventListener('resize', updateArrows);
+		};
+	});
+
+	$effect(() => {
+		void $workspace.spaces.map((s) => s.id + ':' + s.name).join('|');
+		requestAnimationFrame(updateArrows);
 	});
 
 	function scrollBy(dir: -1 | 1) {
@@ -102,29 +120,6 @@
 </script>
 
 <div class="flex items-end gap-1 border-b border-outline-variant">
-	{#if canLeft || canRight}
-		<div class="mb-1 flex items-center gap-1">
-			<button
-				type="button"
-				title="Scroll tabs left"
-				disabled={!canLeft}
-				onclick={() => scrollBy(-1)}
-				class="flex h-6 w-6 cursor-pointer items-center justify-center rounded-md text-on-surface-variant hover:bg-surface hover:text-on-surface focus:ring-2 focus:ring-primary focus:outline-none disabled:cursor-default disabled:opacity-40"
-			>
-				<ChevronLeft class="size-4" />
-			</button>
-			<button
-				type="button"
-				title="Scroll tabs right"
-				disabled={!canRight}
-				onclick={() => scrollBy(1)}
-				class="flex h-6 w-6 cursor-pointer items-center justify-center rounded-md text-on-surface-variant hover:bg-surface hover:text-on-surface focus:ring-2 focus:ring-primary focus:outline-none disabled:cursor-default disabled:opacity-40"
-			>
-				<ChevronRight class="size-4" />
-			</button>
-		</div>
-	{/if}
-
 	<div bind:this={scrollEl} class="flex min-w-0 flex-1 items-end gap-1 overflow-x-auto">
 		{#each $workspace.spaces as space (space.id)}
 			<div
@@ -196,6 +191,29 @@
 			<Plus class="size-4" />
 		</button>
 	</div>
+
+	{#if canLeft || canRight}
+		<div class="flex shrink-0 self-stretch">
+			<button
+				type="button"
+				title="Scroll tabs left"
+				disabled={!canLeft}
+				onclick={() => scrollBy(-1)}
+				class="flex w-8 cursor-pointer items-center justify-center self-stretch rounded-t-md border-b-2 border-transparent text-on-surface-variant transition-colors hover:bg-surface hover:text-on-surface focus:outline-none disabled:cursor-default disabled:opacity-40"
+			>
+				<ChevronLeft class="size-4" />
+			</button>
+			<button
+				type="button"
+				title="Scroll tabs right"
+				disabled={!canRight}
+				onclick={() => scrollBy(1)}
+				class="flex w-8 cursor-pointer items-center justify-center self-stretch rounded-t-md border-b-2 border-transparent text-on-surface-variant transition-colors hover:bg-surface hover:text-on-surface focus:outline-none disabled:cursor-default disabled:opacity-40"
+			>
+				<ChevronRight class="size-4" />
+			</button>
+		</div>
+	{/if}
 
 	<Help />
 	<Settings />

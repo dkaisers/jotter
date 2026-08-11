@@ -54,6 +54,8 @@ function newId(): string {
 	return crypto.randomUUID();
 }
 
+export { newId };
+
 function emptyTodoCard(): TodoCard {
 	return { id: newId(), type: 'todo', title: 'Todos', todos: [] };
 }
@@ -124,7 +126,7 @@ function defaultSpace(): Space {
 	return { id: newId(), name: 'Unnamed', columns: defaultColumns() };
 }
 
-function sanitizeSpace(raw: unknown): Space | null {
+export function sanitizeSpace(raw: unknown): Space | null {
 	if (!raw || typeof raw !== 'object') return null;
 	const it = raw as Record<string, unknown>;
 	return {
@@ -239,6 +241,12 @@ export function addSpace() {
 		const s = { id: newId(), name: 'Unnamed', columns: [] as Column[] };
 		return { spaces: [...w.spaces, s], activeId: s.id };
 	});
+}
+
+/** Resets the workspace to a single empty space. */
+export function clearWorkspace() {
+	const s = { id: newId(), name: 'Unnamed', columns: [] as Column[] };
+	workspace.set({ spaces: [s], activeId: s.id });
 }
 
 export function removeSpace(spaceId: string) {
