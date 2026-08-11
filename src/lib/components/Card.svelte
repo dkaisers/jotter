@@ -1,8 +1,16 @@
 <script lang="ts">
-	import { GripVertical, Trash2 } from 'lucide-svelte';
-	import { removeCard, setCardTitle, type Card, type Column, type Space } from '$lib/workspace';
+	import { ArrowUpDown, GripVertical, Trash2 } from 'lucide-svelte';
+	import {
+		removeCard,
+		setCardTitle,
+		sortTodos,
+		type Card,
+		type Column,
+		type Space
+	} from '$lib/workspace';
 	import TodoList from './TodoList.svelte';
 	import NoteArea from './NoteArea.svelte';
+	import { settings } from '$lib/theme';
 
 	let {
 		space,
@@ -77,6 +85,19 @@
 				class="min-w-0 flex-1 cursor-text rounded-md px-2 py-0.5 text-left font-semibold text-base text-on-surface focus:outline-none"
 			>
 				<span class="block truncate">{card.title}</span>
+			</button>
+		{/if}
+
+		{#if card.type === 'todo'}
+			<button
+				type="button"
+				title={$settings.doneToBottom
+					? 'Sort: important first, done last'
+					: 'Sort: important first'}
+				onclick={() => sortTodos(space.id, column.id, card.id)}
+				class="flex h-6 shrink-0 cursor-pointer items-center rounded-md px-1 text-on-surface-variant opacity-0 transition-opacity group-hover:opacity-100 hover:bg-surface-variant hover:text-on-surface focus:outline-none"
+			>
+				<ArrowUpDown class="size-4" />
 			</button>
 		{/if}
 

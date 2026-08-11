@@ -1,4 +1,5 @@
-import { writable, derived } from 'svelte/store';
+import { writable, derived, get } from 'svelte/store';
+import { settings } from '$lib/theme';
 
 export type CardType = 'todo' | 'note';
 
@@ -405,6 +406,85 @@ export function updateTodo(
 						cards: c.cards.map((x) =>
 							x.type === 'todo' && x.id === cardId
 								? { ...x, todos: x.todos.map((t) => (t.id === todoId ? { ...t, ...patch } : t)) }
+								: x
+						)
+					}
+				: c
+		)
+	}));
+}
+
+/** Stably reorders todos: important (flagged undone) first, and done last when enabled. */
+function applyTodoSort(
+	todos: TodoItem[],
+	importantToTop: boolean,
+	doneToBottom: boolean
+): TodoItem[] {
+	let ordered = todos;
+	if (importantToTop) {
+		const flagged = todos.filter((t) => t.flagged && !t.done);
+		ordered = [...flagged, ...todos.filter((t) => !(t.flagged && !t.done))];
+	}
+	if (doneToBottom) {
+		ordered = [...ordered.filter((t) => !t.done), ...ordered.filter((t) => t.done)];
+	}
+	return ordered;
+}
+
+/** Sets a todo's done state according to the auto-todo-handling mode. */
+export function setTodoDone(
+	spaceId: string,
+	columnId: string,
+	cardId: string,
+	todoId: string,
+	done: boolean
+) {
+	const { todoMode, importantToTop, doneToBottom, keepImportant } = get(settings);
+	updateSpace(spaceId, (s) => ({
+		...s,
+		columns: s.columns.map((c) =>
+			c.id === columnId
+				? {
+						...c,
+						cards: c.cards.map((x) => {
+							if (x.type !== 'todo' || x.id !== cardId) return x;
+							const idx = x.todos.findIndex((t) => t.id === todoId);
+							if (idx === -1) return x;
+
+							if (done && todoMode === 'delete') {
+								if (keepImportant && x.todos[idx].flagged) {
+									return {
+										...x,
+										todos: x.todos.map((t) => (t.id === todoId ? { ...t, done: true } : t))
+									};
+								}
+								return { ...x, todos: x.todos.filter((t) => t.id !== todoId) };
+							}
+
+							const next = x.todos.map((t) => (t.id === todoId ? { ...t, done } : t));
+							if (todoMode === 'sort') {
+								return { ...x, todos: applyTodoSort(next, importantToTop, doneToBottom) };
+							}
+							return { ...x, todos: next };
+						})
+					}
+				: c
+		)
+	}));
+}
+
+/** Stably sorts a todo card's todos according to the auto-todo-handling toggles. */
+export function sortTodos(spaceId: string, columnId: string, cardId: string) {
+	const { importantToTop, doneToBottom } = get(settings);
+	updateSpace(spaceId, (s) => ({
+		...s,
+		columns: s.columns.map((c) =>
+			c.id === columnId
+				? {
+						...c,
+						cards: c.cards.map((x) =>
+							x.type === 'todo' && x.id === cardId
+								? { ...x, todos: applyTodoSort(x.todos, importantToTop, doneToBottom) }
 								: x
 						)
 					}

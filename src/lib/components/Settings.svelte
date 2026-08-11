@@ -5,14 +5,19 @@
 		settings,
 		modes,
 		fonts,
+		todoModes,
 		setMode,
 		setUiFont,
 		setContentFont,
 		setGrain,
-		setAutoDeleteDone,
+		setTodoMode,
+		setImportantToTop,
+		setDoneToBottom,
+		setKeepImportant,
 		setSpellcheck,
 		type Mode,
-		type FontId
+		type FontId,
+		type TodoMode
 	} from '$lib/theme';
 	import Modal from './Modal.svelte';
 
@@ -120,19 +125,67 @@
 			Behavior
 		</p>
 		<div class="flex items-center justify-between px-0.5 py-1">
-			<span class="text-sm text-on-surface">Auto-delete done todos</span>
-			<Switch.Root
-				checked={$settings.autoDeleteDone}
-				onCheckedChange={(c) => setAutoDeleteDone(c)}
-				class="flex h-5 w-9 cursor-pointer items-center rounded-full p-0.5 transition-colors focus:outline-none data-[state=checked]:bg-primary data-[state=unchecked]:bg-surface-variant"
+			<span class="text-sm text-on-surface">Auto todo handling</span>
+			<ToggleGroup.Root
+				type="single"
+				value={$settings.todoMode}
+				onValueChange={(v) => v && setTodoMode(v as TodoMode)}
+				class="flex items-center gap-1"
 			>
-				<Switch.Thumb
-					class={`size-4 rounded-full bg-white shadow transition-transform ${
-						$settings.autoDeleteDone ? 'translate-x-4' : ''
-					}`}
-				/>
-			</Switch.Root>
+				{#each todoModes as m (m.value)}
+					<ToggleGroup.Item value={m.value} class={itemClass}>
+						{m.label}
+					</ToggleGroup.Item>
+				{/each}
+			</ToggleGroup.Root>
 		</div>
+
+		{#if $settings.todoMode === 'sort'}
+			<div class="flex items-center justify-between px-0.5 py-1">
+				<span class="text-sm text-on-surface">Important to top</span>
+				<Switch.Root
+					checked={$settings.importantToTop}
+					onCheckedChange={(c) => setImportantToTop(c)}
+					class="flex h-5 w-9 cursor-pointer items-center rounded-full p-0.5 transition-colors focus:outline-none data-[state=checked]:bg-primary data-[state=unchecked]:bg-surface-variant"
+				>
+					<Switch.Thumb
+						class={`size-4 rounded-full bg-white shadow transition-transform ${
+							$settings.importantToTop ? 'translate-x-4' : ''
+						}`}
+					/>
+				</Switch.Root>
+			</div>
+
+			<div class="flex items-center justify-between px-0.5 py-1">
+				<span class="text-sm text-on-surface">Done to bottom</span>
+				<Switch.Root
+					checked={$settings.doneToBottom}
+					onCheckedChange={(c) => setDoneToBottom(c)}
+					class="flex h-5 w-9 cursor-pointer items-center rounded-full p-0.5 transition-colors focus:outline-none data-[state=checked]:bg-primary data-[state=unchecked]:bg-surface-variant"
+				>
+					<Switch.Thumb
+						class={`size-4 rounded-full bg-white shadow transition-transform ${
+							$settings.doneToBottom ? 'translate-x-4' : ''
+						}`}
+					/>
+				</Switch.Root>
+			</div>
+		{:else if $settings.todoMode === 'delete'}
+			<div class="flex items-center justify-between px-0.5 py-1">
+				<span class="text-sm text-on-surface">Keep important todos</span>
+				<Switch.Root
+					checked={$settings.keepImportant}
+					onCheckedChange={(c) => setKeepImportant(c)}
+					class="flex h-5 w-9 cursor-pointer items-center rounded-full p-0.5 transition-colors focus:outline-none data-[state=checked]:bg-primary data-[state=unchecked]:bg-surface-variant"
+				>
+					<Switch.Thumb
+						class={`size-4 rounded-full bg-white shadow transition-transform ${
+							$settings.keepImportant ? 'translate-x-4' : ''
+						}`}
+					/>
+				</Switch.Root>
+			</div>
+		{/if}
 
 		<div class="flex items-center justify-between px-0.5 py-1">
 			<span class="text-sm text-on-surface">Spell checking</span>

@@ -3,13 +3,17 @@ import { refreshFavicon } from '$lib/favicon';
 
 export type Mode = 'light' | 'dark';
 export type FontId = 'sans' | 'serif' | 'mono';
+export type TodoMode = 'none' | 'sort' | 'delete';
 
 export interface Settings {
 	mode: Mode;
 	uiFont: FontId;
 	contentFont: FontId;
 	grain: boolean;
-	autoDeleteDone: boolean;
+	todoMode: TodoMode;
+	importantToTop: boolean;
+	doneToBottom: boolean;
+	keepImportant: boolean;
 	spellcheck: boolean;
 }
 
@@ -18,9 +22,18 @@ export const DEFAULT_SETTINGS: Settings = {
 	uiFont: 'sans',
 	contentFont: 'serif',
 	grain: true,
-	autoDeleteDone: false,
+	todoMode: 'none',
+	importantToTop: false,
+	doneToBottom: false,
+	keepImportant: false,
 	spellcheck: true
 };
+
+export const todoModes: { value: TodoMode; label: string }[] = [
+	{ value: 'none', label: 'None' },
+	{ value: 'sort', label: 'Sort' },
+	{ value: 'delete', label: 'Delete' }
+];
 
 export const modes: { value: Mode; label: string }[] = [
 	{ value: 'dark', label: 'Dark' },
@@ -62,14 +75,25 @@ function initialSettings(): Settings {
 		const uiFont = parseFont(document.documentElement.getAttribute('data-ui-font'));
 		const contentFont = parseFont(document.documentElement.getAttribute('data-content-font'));
 		const grain = document.documentElement.getAttribute('data-grain') === '1';
-		let autoDeleteDone = DEFAULT_SETTINGS.autoDeleteDone;
+		let todoMode = DEFAULT_SETTINGS.todoMode;
+		let importantToTop = DEFAULT_SETTINGS.importantToTop;
+		let doneToBottom = DEFAULT_SETTINGS.doneToBottom;
+		let keepImportant = DEFAULT_SETTINGS.keepImportant;
 		let spellcheck = DEFAULT_SETTINGS.spellcheck;
 		try {
 			const stored = window.localStorage.getItem(STORAGE_KEY);
 			if (stored) {
 				const parsed = JSON.parse(stored);
-				if (typeof parsed.autoDeleteDone === 'boolean') autoDeleteDone = parsed.autoDeleteDone;
+				if (todoModes.some((m) => m.value === parsed.todoMode)) todoMode = parsed.todoMode;
+				if (typeof parsed.importantToTop === 'boolean') importantToTop = parsed.importantToTop;
+				if (typeof parsed.doneToBottom === 'boolean') doneToBottom = parsed.doneToBottom;
+				if (typeof parsed.keepImportant === 'boolean') keepImportant = parsed.keepImportant;
 				if (typeof parsed.spellcheck === 'boolean') spellcheck = parsed.spellcheck;
+				// migrate the old two toggles into the mode
+				if (!todoModes.some((m) => m.value === parsed.todoMode)) {
+					if (parsed.autoDeleteDone === true) todoMode = 'delete';
+					else if (parsed.autoSortDone === true) todoMode = 'sort';
+				}
 			}
 		} catch {
 			// ignore
@@ -79,7 +103,10 @@ function initialSettings(): Settings {
 			uiFont: uiFont ?? DEFAULT_SETTINGS.uiFont,
 			contentFont: contentFont ?? DEFAULT_SETTINGS.contentFont,
 			grain: grain ?? DEFAULT_SETTINGS.grain,
-			autoDeleteDone,
+			todoMode,
+			importantToTop,
+			doneToBottom,
+			keepImportant,
 			spellcheck
 		};
 	}
@@ -133,9 +160,33 @@ export function setGrain(grain: boolean) {
 	});
 }
 
-export function setAutoDeleteDone(autoDeleteDone: boolean) {
+export function setTodoMode(todoMode: TodoMode) {
 	settings.update((s) => {
-		const next: Settings = { ...s, autoDeleteDone };
+		const next: Settings = { ...s, todoMode };
+		applySettings(next);
+		return next;
+	});
+}
+
+export function setImportantToTop(importantToTop: boolean) {
+	settings.update((s) => {
+		const next: Settings = { ...s, importantToTop };
+		applySettings(next);
+		return next;
+	});
+}
+
+export function setDoneToBottom(doneToBottom: boolean) {
+	settings.update((s) => {
+		const next: Settings = { ...s, doneToBottom };
+		applySettings(next);
+		return next;
+	});
+}
+
+export function setKeepImportant(keepImportant: boolean) {
+	settings.update((s) => {
+		const next: Settings = { ...s, keepImportant };
 		applySettings(next);
 		return next;
 	});

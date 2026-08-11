@@ -5,6 +5,7 @@
 		removeTodo,
 		reorderTodo,
 		updateTodo,
+		setTodoDone,
 		type Column,
 		type Space,
 		type TodoCard,
@@ -27,11 +28,7 @@
 	let dragTodoId: string | null = $state(null);
 
 	function toggleTodo(todoId: string, done: boolean) {
-		if (done && $settings.autoDeleteDone) {
-			removeTodo(space.id, column.id, card.id, todoId);
-		} else {
-			updateTodo(space.id, column.id, card.id, todoId, { done });
-		}
+		setTodoDone(space.id, column.id, card.id, todoId, done);
 	}
 
 	function patchTodo(todoId: string, patch: Partial<TodoItem>) {
