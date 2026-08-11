@@ -17,9 +17,9 @@
 		<script>
 			(() => {
 				var key = 'jotter:theme';
-				var modes = ['light', 'dark'];
+				var modes = ['auto', 'light', 'dark'];
 				var fonts = ['sans', 'serif', 'mono'];
-				var s = { mode: 'dark', uiFont: 'sans', contentFont: 'serif', grain: true };
+				var s = { mode: 'auto', uiFont: 'sans', contentFont: 'serif', grain: true };
 				try {
 					var stored = window.localStorage.getItem(key);
 					if (stored) {
@@ -30,7 +30,13 @@
 						if (typeof parsed.grain === 'boolean') s.grain = parsed.grain;
 					}
 				} catch (e) {}
-				document.documentElement.setAttribute('data-theme', s.mode);
+				var effective =
+					s.mode === 'auto'
+						? window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+							? 'dark'
+							: 'light'
+						: s.mode;
+				document.documentElement.setAttribute('data-theme', effective);
 				document.documentElement.setAttribute('data-ui-font', s.uiFont);
 				document.documentElement.setAttribute('data-content-font', s.contentFont);
 				document.documentElement.setAttribute('data-grain', s.grain ? '1' : '0');
@@ -38,7 +44,7 @@
 					dark: { base: '#1f1d1a', primary: '#d0765a' },
 					light: { base: '#f5f1e8', primary: '#c05b3c' }
 				};
-				var p = palettes[s.mode];
+				var p = palettes[effective];
 				var svg =
 					"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>" +
 					"<rect x='1' y='1' width='22' height='22' rx='6' fill='" +

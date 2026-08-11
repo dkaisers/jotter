@@ -1,7 +1,7 @@
-import { writable } from 'svelte/store';
+import { writable, get } from 'svelte/store';
 import { refreshFavicon } from '$lib/favicon';
 
-export type Mode = 'light' | 'dark';
+export type Mode = 'auto' | 'light' | 'dark';
 export type FontId = 'sans' | 'serif' | 'mono';
 export type TodoMode = 'none' | 'sort' | 'delete';
 
@@ -18,7 +18,7 @@ export interface Settings {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-	mode: 'dark',
+	mode: 'auto',
 	uiFont: 'sans',
 	contentFont: 'serif',
 	grain: true,
@@ -36,6 +36,7 @@ export const todoModes: { value: TodoMode; label: string }[] = [
 ];
 
 export const modes: { value: Mode; label: string }[] = [
+	{ value: 'auto', label: 'Auto' },
 	{ value: 'dark', label: 'Dark' },
 	{ value: 'light', label: 'Light' }
 ];
@@ -48,20 +49,15 @@ export const fonts: { value: FontId; label: string }[] = [
 
 const STORAGE_KEY = 'jotter:theme';
 
-const THEME_COLORS: Record<Mode, { bg: string }> = {
+const THEME_COLORS: Record<'light' | 'dark', { bg: string }> = {
 	dark: { bg: '#1f1d1a' },
 	light: { bg: '#f5f1e8' }
 };
 
-function setFavicon(mode: Mode) {
+function setFavicon(mode: 'light' | 'dark') {
 	refreshFavicon();
 	const themeColor = document.querySelector('meta[name="theme-color"]');
 	if (themeColor) themeColor.setAttribute('content', THEME_COLORS[mode].bg);
-}
-
-function parseMode(mode: string | null | undefined): Mode | null {
-	if (mode === 'light' || mode === 'dark') return mode;
-	return null;
 }
 
 function parseFont(font: string | null | undefined): FontId | null {
@@ -69,12 +65,30 @@ function parseFont(font: string | null | undefined): FontId | null {
 	return null;
 }
 
+function systemPrefersDark(): boolean {
+	return typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
+function effectiveMode(mode: Mode): 'light' | 'dark' {
+	return mode === 'auto' ? (systemPrefersDark() ? 'dark' : 'light') : mode;
+}
+
+let mediaQuery: MediaQueryList | null = null;
+
+function setupAutoModeListener() {
+	if (typeof window === 'undefined' || mediaQuery) return;
+	mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+	mediaQuery.addEventListener('change', () => {
+		if (get(settings).mode === 'auto') applySettings(get(settings));
+	});
+}
+
 function initialSettings(): Settings {
 	if (typeof document !== 'undefined') {
-		const mode = parseMode(document.documentElement.getAttribute('data-theme'));
 		const uiFont = parseFont(document.documentElement.getAttribute('data-ui-font'));
 		const contentFont = parseFont(document.documentElement.getAttribute('data-content-font'));
 		const grain = document.documentElement.getAttribute('data-grain') === '1';
+		let mode = DEFAULT_SETTINGS.mode;
 		let todoMode = DEFAULT_SETTINGS.todoMode;
 		let importantToTop = DEFAULT_SETTINGS.importantToTop;
 		let doneToBottom = DEFAULT_SETTINGS.doneToBottom;
@@ -84,6 +98,7 @@ function initialSettings(): Settings {
 			const stored = window.localStorage.getItem(STORAGE_KEY);
 			if (stored) {
 				const parsed = JSON.parse(stored);
+				if (modes.some((m) => m.value === parsed.mode)) mode = parsed.mode;
 				if (todoModes.some((m) => m.value === parsed.todoMode)) todoMode = parsed.todoMode;
 				if (typeof parsed.importantToTop === 'boolean') importantToTop = parsed.importantToTop;
 				if (typeof parsed.doneToBottom === 'boolean') doneToBottom = parsed.doneToBottom;
@@ -115,12 +130,16 @@ function initialSettings(): Settings {
 
 export const settings = writable<Settings>(initialSettings());
 
+setupAutoModeListener();
+
 function applySettings(s: Settings) {
-	document.documentElement.setAttribute('data-theme', s.mode);
+	const eff = effectiveMode(s.mode);
+	document.documentElement.setAttribute('data-theme', eff);
 	document.documentElement.setAttribute('data-ui-font', s.uiFont);
 	document.documentElement.setAttribute('data-content-font', s.contentFont);
 	document.documentElement.setAttribute('data-grain', s.grain ? '1' : '0');
-	setFavicon(s.mode);
+	setFavicon(eff);
+	setupAutoModeListener();
 	try {
 		window.localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
 	} catch {
