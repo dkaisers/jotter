@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { ListTodo, NotepadText } from 'lucide-svelte';
 	import { activeSpace, addColumn, totalSpan, type CardType } from '$lib/workspace';
 	import { TOTAL_UNITS } from '$lib/columnResize';
 	import Column from '$lib/components/Column.svelte';
+	import AddCardButtons from '$lib/components/AddCardButtons.svelte';
 	import { onMount } from 'svelte';
 
 	let mounted = $state(false);
@@ -43,22 +43,7 @@
 						</p>
 					{/if}
 					<div class="flex items-center gap-2">
-						<button
-							type="button"
-							title="Add todo list"
-							onclick={() => addToEmpty('todo')}
-							class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-on-surface-variant transition-colors hover:bg-surface hover:text-on-surface focus:ring-2 focus:ring-primary focus:outline-none"
-						>
-							<ListTodo class="size-4" />
-						</button>
-						<button
-							type="button"
-							title="Add note"
-							onclick={() => addToEmpty('note')}
-							class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-on-surface-variant transition-colors hover:bg-surface hover:text-on-surface focus:ring-2 focus:ring-primary focus:outline-none"
-						>
-							<NotepadText class="size-4" />
-						</button>
+						<AddCardButtons onadd={addToEmpty} />
 					</div>
 				</div>
 			</div>
