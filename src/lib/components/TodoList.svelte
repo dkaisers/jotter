@@ -99,7 +99,7 @@
 				type="button"
 				title="Drag to reorder"
 				onpointerdown={(e) => onDragStart(e, todo.id)}
-				class="absolute top-0.5 -left-3 flex h-5 w-5 cursor-grab items-center justify-center text-on-surface-variant opacity-0 transition-opacity group-hover:opacity-100 focus:outline-none active:cursor-grabbing"
+				class="absolute top-[1px] -left-3 flex h-5 w-5 cursor-grab items-center justify-center text-on-surface-variant opacity-0 transition-opacity group-hover:opacity-100 focus:outline-none active:cursor-grabbing"
 			>
 				<GripVertical class="size-3.5" />
 			</button>
