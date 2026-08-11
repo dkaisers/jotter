@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { Settings as SettingsIcon } from 'lucide-svelte';
-	import { Switch, ToggleGroup } from 'bits-ui';
 	import {
 		settings,
 		modes,
@@ -21,6 +20,8 @@
 	} from '$lib/theme';
 	import Modal from './Modal.svelte';
 	import Confirm from './Confirm.svelte';
+	import ToggleRow from './ToggleRow.svelte';
+	import SelectRow from './SelectRow.svelte';
 	import { exportWorkspace, parseBackup, applyImport } from '$lib/backup';
 	import { clearWorkspace } from '$lib/workspace';
 	import type { Workspace } from '$lib/workspace';
@@ -31,8 +32,7 @@
 		mono: "'JetBrains Mono Variable', ui-monospace, 'SF Mono', monospace"
 	};
 
-	const itemClass =
-		'flex h-6 w-16 cursor-pointer items-center justify-center rounded-md text-sm data-[state=on]:bg-primary data-[state=on]:text-on-primary data-[state=off]:bg-surface-variant/40 data-[state=off]:text-on-surface focus:outline-none';
+	const fontItems = fonts.map((f) => ({ ...f, style: `font-family: ${fontStack[f.value]}` }));
 
 	let open = $state(false);
 	let pendingImport: Workspace | null = $state(null);
@@ -78,158 +78,65 @@
 <Modal {open} title="Settings" onclose={() => (open = false)} width="max-w-xl">
 	<p class="mb-2 text-xs font-medium tracking-wide text-on-surface-variant uppercase">Appearance</p>
 
-	<div class="mb-2 flex items-center justify-between px-0.5">
-		<span class="text-sm text-on-surface">Mode</span>
-		<ToggleGroup.Root
-			type="single"
-			value={$settings.mode}
-			onValueChange={(v) => v && setMode(v as Mode)}
-			class="flex items-center gap-1"
-		>
-			{#each modes as m (m.value)}
-				<ToggleGroup.Item value={m.value} class={itemClass}>
-					{m.label}
-				</ToggleGroup.Item>
-			{/each}
-		</ToggleGroup.Root>
-	</div>
+	<SelectRow
+		label="Mode"
+		items={modes}
+		value={$settings.mode}
+		onValueChange={(v) => setMode(v as Mode)}
+	/>
 
-	<div class="mb-2 flex items-center justify-between px-0.5">
-		<span class="text-sm text-on-surface">UI font</span>
-		<ToggleGroup.Root
-			type="single"
-			value={$settings.uiFont}
-			onValueChange={(v) => v && setUiFont(v as FontId)}
-			class="flex items-center gap-1"
-		>
-			{#each fonts as f (f.value)}
-				<ToggleGroup.Item
-					value={f.value}
-					class={itemClass}
-					style={`font-family: ${fontStack[f.value]}`}
-				>
-					{f.label}
-				</ToggleGroup.Item>
-			{/each}
-		</ToggleGroup.Root>
-	</div>
+	<SelectRow
+		label="UI font"
+		items={fontItems}
+		value={$settings.uiFont}
+		onValueChange={(v) => setUiFont(v as FontId)}
+	/>
 
-	<div class="mb-2 flex items-center justify-between px-0.5">
-		<span class="text-sm text-on-surface">Content font</span>
-		<ToggleGroup.Root
-			type="single"
-			value={$settings.contentFont}
-			onValueChange={(v) => v && setContentFont(v as FontId)}
-			class="flex items-center gap-1"
-		>
-			{#each fonts as f (f.value)}
-				<ToggleGroup.Item
-					value={f.value}
-					class={itemClass}
-					style={`font-family: ${fontStack[f.value]}`}
-				>
-					{f.label}
-				</ToggleGroup.Item>
-			{/each}
-		</ToggleGroup.Root>
-	</div>
+	<SelectRow
+		label="Content font"
+		items={fontItems}
+		value={$settings.contentFont}
+		onValueChange={(v) => setContentFont(v as FontId)}
+	/>
 
-	<div class="flex items-center justify-between px-0.5 py-1">
-		<span class="text-sm text-on-surface">Paper grain</span>
-		<Switch.Root
-			checked={$settings.grain}
-			onCheckedChange={(c) => setGrain(c)}
-			class="flex h-5 w-9 cursor-pointer items-center rounded-full p-0.5 transition-colors focus:outline-none data-[state=checked]:bg-primary data-[state=unchecked]:bg-surface-variant"
-		>
-			<Switch.Thumb
-				class={`size-4 rounded-full bg-white shadow transition-transform ${
-					$settings.grain ? 'translate-x-4' : ''
-				}`}
-			/>
-		</Switch.Root>
-	</div>
+	<ToggleRow label="Paper grain" checked={$settings.grain} onCheckedChange={setGrain} />
 
 	<div class="mt-4 border-t border-outline-variant pt-3">
 		<p class="mb-1.5 text-xs font-medium tracking-wide text-on-surface-variant uppercase">
 			Behavior
 		</p>
-		<div class="flex items-center justify-between px-0.5 py-1">
-			<span class="text-sm text-on-surface">Auto todo handling</span>
-			<ToggleGroup.Root
-				type="single"
-				value={$settings.todoMode}
-				onValueChange={(v) => v && setTodoMode(v as TodoMode)}
-				class="flex items-center gap-1"
-			>
-				{#each todoModes as m (m.value)}
-					<ToggleGroup.Item value={m.value} class={itemClass}>
-						{m.label}
-					</ToggleGroup.Item>
-				{/each}
-			</ToggleGroup.Root>
-		</div>
+		<SelectRow
+			label="Auto todo handling"
+			items={todoModes}
+			value={$settings.todoMode}
+			onValueChange={(v) => setTodoMode(v as TodoMode)}
+		/>
 
 		{#if $settings.todoMode === 'sort'}
-			<div class="flex items-center justify-between px-0.5 py-1">
-				<span class="text-sm text-on-surface">Important to top</span>
-				<Switch.Root
-					checked={$settings.importantToTop}
-					onCheckedChange={(c) => setImportantToTop(c)}
-					class="flex h-5 w-9 cursor-pointer items-center rounded-full p-0.5 transition-colors focus:outline-none data-[state=checked]:bg-primary data-[state=unchecked]:bg-surface-variant"
-				>
-					<Switch.Thumb
-						class={`size-4 rounded-full bg-white shadow transition-transform ${
-							$settings.importantToTop ? 'translate-x-4' : ''
-						}`}
-					/>
-				</Switch.Root>
-			</div>
+			<ToggleRow
+				label="Important to top"
+				checked={$settings.importantToTop}
+				onCheckedChange={setImportantToTop}
+			/>
 
-			<div class="flex items-center justify-between px-0.5 py-1">
-				<span class="text-sm text-on-surface">Done to bottom</span>
-				<Switch.Root
-					checked={$settings.doneToBottom}
-					onCheckedChange={(c) => setDoneToBottom(c)}
-					class="flex h-5 w-9 cursor-pointer items-center rounded-full p-0.5 transition-colors focus:outline-none data-[state=checked]:bg-primary data-[state=unchecked]:bg-surface-variant"
-				>
-					<Switch.Thumb
-						class={`size-4 rounded-full bg-white shadow transition-transform ${
-							$settings.doneToBottom ? 'translate-x-4' : ''
-						}`}
-					/>
-				</Switch.Root>
-			</div>
+			<ToggleRow
+				label="Done to bottom"
+				checked={$settings.doneToBottom}
+				onCheckedChange={setDoneToBottom}
+			/>
 		{:else if $settings.todoMode === 'delete'}
-			<div class="flex items-center justify-between px-0.5 py-1">
-				<span class="text-sm text-on-surface">Keep important todos</span>
-				<Switch.Root
-					checked={$settings.keepImportant}
-					onCheckedChange={(c) => setKeepImportant(c)}
-					class="flex h-5 w-9 cursor-pointer items-center rounded-full p-0.5 transition-colors focus:outline-none data-[state=checked]:bg-primary data-[state=unchecked]:bg-surface-variant"
-				>
-					<Switch.Thumb
-						class={`size-4 rounded-full bg-white shadow transition-transform ${
-							$settings.keepImportant ? 'translate-x-4' : ''
-						}`}
-					/>
-				</Switch.Root>
-			</div>
+			<ToggleRow
+				label="Keep important todos"
+				checked={$settings.keepImportant}
+				onCheckedChange={setKeepImportant}
+			/>
 		{/if}
 
-		<div class="flex items-center justify-between px-0.5 py-1">
-			<span class="text-sm text-on-surface">Spell checking</span>
-			<Switch.Root
-				checked={$settings.spellcheck}
-				onCheckedChange={(c) => setSpellcheck(c)}
-				class="flex h-5 w-9 cursor-pointer items-center rounded-full p-0.5 transition-colors focus:outline-none data-[state=checked]:bg-primary data-[state=unchecked]:bg-surface-variant"
-			>
-				<Switch.Thumb
-					class={`size-4 rounded-full bg-white shadow transition-transform ${
-						$settings.spellcheck ? 'translate-x-4' : ''
-					}`}
-				/>
-			</Switch.Root>
-		</div>
+		<ToggleRow
+			label="Spell checking"
+			checked={$settings.spellcheck}
+			onCheckedChange={setSpellcheck}
+		/>
 	</div>
 
 	<div class="mt-4 border-t border-outline-variant pt-3">
