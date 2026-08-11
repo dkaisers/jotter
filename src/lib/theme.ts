@@ -160,74 +160,46 @@ if (typeof window !== 'undefined') {
 	});
 }
 
-export function setMode(mode: Mode) {
+function updateSetting<K extends keyof Settings>(key: K, value: Settings[K]) {
 	settings.update((s) => {
-		const next: Settings = { ...s, mode };
+		const next: Settings = { ...s, [key]: value };
 		applySettings(next);
 		return next;
 	});
+}
+
+export function setMode(mode: Mode) {
+	updateSetting('mode', mode);
 }
 
 export function setUiFont(uiFont: FontId) {
-	settings.update((s) => {
-		const next: Settings = { ...s, uiFont };
-		applySettings(next);
-		return next;
-	});
+	updateSetting('uiFont', uiFont);
 }
 
 export function setContentFont(contentFont: FontId) {
-	settings.update((s) => {
-		const next: Settings = { ...s, contentFont };
-		applySettings(next);
-		return next;
-	});
+	updateSetting('contentFont', contentFont);
 }
 
 export function setGrain(grain: boolean) {
-	settings.update((s) => {
-		const next: Settings = { ...s, grain };
-		applySettings(next);
-		return next;
-	});
+	updateSetting('grain', grain);
 }
 
 export function setTodoMode(todoMode: TodoMode) {
-	settings.update((s) => {
-		const next: Settings = { ...s, todoMode };
-		applySettings(next);
-		return next;
-	});
+	updateSetting('todoMode', todoMode);
 }
 
 export function setImportantToTop(importantToTop: boolean) {
-	settings.update((s) => {
-		const next: Settings = { ...s, importantToTop };
-		applySettings(next);
-		return next;
-	});
+	updateSetting('importantToTop', importantToTop);
 }
 
 export function setDoneToBottom(doneToBottom: boolean) {
-	settings.update((s) => {
-		const next: Settings = { ...s, doneToBottom };
-		applySettings(next);
-		return next;
-	});
+	updateSetting('doneToBottom', doneToBottom);
 }
 
 export function setKeepImportant(keepImportant: boolean) {
-	settings.update((s) => {
-		const next: Settings = { ...s, keepImportant };
-		applySettings(next);
-		return next;
-	});
+	updateSetting('keepImportant', keepImportant);
 }
 
 export function setSpellcheck(spellcheck: boolean) {
-	settings.update((s) => {
-		const next: Settings = { ...s, spellcheck };
-		applySettings(next);
-		return next;
-	});
+	updateSetting('spellcheck', spellcheck);
 }
