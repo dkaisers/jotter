@@ -132,7 +132,7 @@ export const settings = writable<Settings>(initialSettings());
 
 setupAutoModeListener();
 
-function applySettings(s: Settings) {
+function applyToDom(s: Settings) {
 	const eff = effectiveMode(s.mode);
 	document.documentElement.setAttribute('data-theme', eff);
 	document.documentElement.setAttribute('data-ui-font', s.uiFont);
@@ -140,11 +140,24 @@ function applySettings(s: Settings) {
 	document.documentElement.setAttribute('data-grain', s.grain ? '1' : '0');
 	setFavicon(eff);
 	setupAutoModeListener();
+}
+
+function applySettings(s: Settings) {
+	applyToDom(s);
 	try {
 		window.localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
 	} catch {
 		// storage unavailable, ignore
 	}
+}
+
+if (typeof window !== 'undefined') {
+	window.addEventListener('storage', (e) => {
+		if (e.key !== STORAGE_KEY) return;
+		const fresh = initialSettings();
+		settings.set(fresh);
+		applyToDom(fresh);
+	});
 }
 
 export function setMode(mode: Mode) {

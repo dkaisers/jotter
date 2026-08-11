@@ -175,12 +175,22 @@ export const workspace = writable<Workspace>(initialWorkspace());
 workspace.subscribe((w) => {
 	if (typeof document === 'undefined') return;
 	try {
-		window.localStorage.setItem(STORAGE_KEY, JSON.stringify(w));
+		const next = JSON.stringify(w);
+		// skip writes that just echo a synced value back (avoids cross-tab loops)
+		if (window.localStorage.getItem(STORAGE_KEY) === next) return;
+		window.localStorage.setItem(STORAGE_KEY, next);
 		window.localStorage.removeItem(LEGACY_KEY);
 	} catch {
 		// storage unavailable, ignore
 	}
 });
+
+if (typeof window !== 'undefined') {
+	window.addEventListener('storage', (e) => {
+		if (e.key !== STORAGE_KEY) return;
+		workspace.set(initialWorkspace());
+	});
+}
 
 export const activeSpace = derived(workspace, (w) => {
 	return w.spaces.find((s) => s.id === w.activeId) ?? w.spaces[0];
