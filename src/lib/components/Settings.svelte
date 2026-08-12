@@ -23,7 +23,7 @@
 	import ToggleRow from './ToggleRow.svelte';
 	import SelectRow from './SelectRow.svelte';
 	import { exportWorkspace, parseBackup, applyImport } from '$lib/backup';
-	import { clearWorkspace } from '$lib/workspace';
+	import { clearWorkspace, sortAllTodoCards } from '$lib/workspace';
 	import type { Workspace } from '$lib/workspace';
 
 	const fontStack: Record<FontId, string> = {
@@ -38,6 +38,22 @@
 	let pendingImport: Workspace | null = $state(null);
 	let confirmClear = $state(false);
 	let fileInput: HTMLInputElement | undefined = $state();
+
+	function changeTodoMode(v: string) {
+		const mode = v as TodoMode;
+		setTodoMode(mode);
+		if (mode === 'sort') sortAllTodoCards();
+	}
+
+	function changeImportantToTop(v: boolean) {
+		setImportantToTop(v);
+		if (v) sortAllTodoCards();
+	}
+
+	function changeDoneToBottom(v: boolean) {
+		setDoneToBottom(v);
+		if (v) sortAllTodoCards();
+	}
 
 	function onFileSelected(e: Event) {
 		const file = (e.currentTarget as HTMLInputElement).files?.[0];
@@ -109,20 +125,20 @@
 			label="Auto todo handling"
 			items={todoModes}
 			value={$settings.todoMode}
-			onValueChange={(v) => setTodoMode(v as TodoMode)}
+			onValueChange={changeTodoMode}
 		/>
 
 		{#if $settings.todoMode === 'sort'}
 			<ToggleRow
 				label="Important to top"
 				checked={$settings.importantToTop}
-				onCheckedChange={setImportantToTop}
+				onCheckedChange={changeImportantToTop}
 			/>
 
 			<ToggleRow
 				label="Done to bottom"
 				checked={$settings.doneToBottom}
-				onCheckedChange={setDoneToBottom}
+				onCheckedChange={changeDoneToBottom}
 			/>
 		{:else if $settings.todoMode === 'delete'}
 			<ToggleRow
