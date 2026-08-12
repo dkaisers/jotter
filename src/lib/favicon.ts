@@ -26,7 +26,7 @@ export function renderFavicon(due: boolean) {
 	const svg =
 		`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>` +
 		`<rect x='1' y='1' width='22' height='22' rx='6' fill='${bg}'/>` +
-		`<g transform='translate(12.5 11.5) scale(0.8) translate(-12.5 -11.5)' fill='none' stroke='${fg}' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'>${PEN_PATHS}</g>` +
+		`<g transform='translate(16.5 15.5) scale(0.8) translate(-16.5 -15.5)' fill='none' stroke='${fg}' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'>${PEN_PATHS}</g>` +
 		`</svg>`;
 
 	let link = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
