@@ -26,6 +26,20 @@ export function spaceHasFlagged(space: Space): boolean {
 	);
 }
 
+/** Whether any todo has a timer whose deadline has passed (a due timer). */
+export function hasDueTimer(w: Workspace): boolean {
+	const ts = Date.now();
+	for (const s of w.spaces) {
+		for (const c of s.columns) {
+			for (const card of c.cards) {
+				if (card.type !== 'todo') continue;
+				if (card.todos.some((t) => t.timer && t.timer.endsAt <= ts)) return true;
+			}
+		}
+	}
+	return false;
+}
+
 /** Whether a space has no cards at all (no todo lists and no notes). */
 export function spaceIsEmpty(space: Space): boolean {
 	return space.columns.every((c) => c.cards.length === 0);

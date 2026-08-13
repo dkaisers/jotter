@@ -5,7 +5,8 @@ const PALETTE: Record<'dark' | 'light', { base: string; primary: string }> = {
 
 const RED = '#d64545';
 
-let hasDue = false;
+let hasFlaggedDue = false;
+let hasTimerDue = false;
 
 const PEN_PATHS =
 	`<path d='M15.707 21.293a1 1 0 0 1-1.414 0l-1.586-1.586a1 1 0 0 1 0-1.414l5.586-5.586a1 1 0 0 1 1.414 0l1.586 1.586a1 1 0 0 1 0 1.414z'/>` +
@@ -13,20 +14,34 @@ const PEN_PATHS =
 	`<path d='m2.3 2.3 7.286 7.286'/>` +
 	`<circle cx='11' cy='11' r='2'/>`;
 
-export function renderFavicon(due: boolean) {
-	hasDue = due;
+const TIMER_PATHS =
+	`<circle cx='12' cy='13' r='8'/>` +
+	`<path d='M12 9v4l2 2'/>` +
+	`<path d='M5 3 2 6'/>` +
+	`<path d='m22 6-3-3'/>` +
+	`<path d='M6.38 18.7 4 21'/>` +
+	`<path d='M17.64 18.67 20 21'/>`;
+
+export function renderFavicon(flaggedDue: boolean, timerDue: boolean) {
+	hasFlaggedDue = flaggedDue;
+	hasTimerDue = timerDue;
 	if (typeof document === 'undefined') return;
 	const mode = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
 	const cs = getComputedStyle(document.documentElement);
 	const base = cs.getPropertyValue('--base').trim() || PALETTE[mode].base;
 	const primary = cs.getPropertyValue('--primary').trim() || PALETTE[mode].primary;
+	const due = timerDue || flaggedDue;
 	const bg = due ? RED : base;
 	const fg = due ? base : primary;
+	const icon = timerDue ? TIMER_PATHS : PEN_PATHS;
+	const transform = timerDue
+		? 'transform="translate(12 13) scale(0.78) translate(-12 -13)"'
+		: 'transform="translate(16.5 15.5) scale(0.8) translate(-16.5 -15.5)"';
 
 	const svg =
 		`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>` +
 		`<rect x='1' y='1' width='22' height='22' rx='6' fill='${bg}'/>` +
-		`<g transform='translate(16.5 15.5) scale(0.8) translate(-16.5 -15.5)' fill='none' stroke='${fg}' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'>${PEN_PATHS}</g>` +
+		`<g ${transform} fill='none' stroke='${fg}' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'>${icon}</g>` +
 		`</svg>`;
 
 	let link = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
@@ -41,5 +56,5 @@ export function renderFavicon(due: boolean) {
 
 /** Re-renders the favicon with the last-seen state (e.g. after a theme change). */
 export function refreshFavicon() {
-	renderFavicon(hasDue);
+	renderFavicon(hasFlaggedDue, hasTimerDue);
 }

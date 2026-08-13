@@ -19,57 +19,88 @@
 </div>
 
 <Modal {open} title="Help" onclose={() => (open = false)} width="max-w-xl">
-	<div class="space-y-3 text-sm text-on-surface-variant">
+	<div class="space-y-4 text-sm text-on-surface-variant">
 		<div>
-			<p class="text-on-surface">Spaces</p>
-			<p class="mt-0.5">
-				Each tab is a space with its own columns. Add one with <span class="text-on-surface">+</span
-				>, rename by double-clicking the tab, drag tabs to reorder.
-			</p>
+			<p class="mb-2 text-xs font-medium tracking-wide text-on-surface-variant uppercase">Layout</p>
+			<div class="space-y-3">
+				<div>
+					<p class="text-on-surface">Spaces</p>
+					<p class="mt-0.5">
+						Each tab is a space with its own columns. Add one with <span class="text-on-surface"
+							>+</span
+						>, rename by double-clicking a tab, drag tabs to reorder, and close with
+						<span class="text-on-surface">×</span>.
+					</p>
+				</div>
+				<div>
+					<p class="text-on-surface">Columns &amp; cards</p>
+					<p class="mt-0.5">
+						Add a todo list or a note with the buttons in a column. Drag a column's edge to resize
+						it; drag a card to reorder it or move it to another column, or drop it into empty space
+						to start a new column. Rename a card by clicking its title.
+					</p>
+				</div>
+			</div>
 		</div>
+
 		<div>
-			<p class="text-on-surface">Columns &amp; cards</p>
-			<p class="mt-0.5">
-				Add a todo list or a note. Drag the column edge to resize. Rename a card by clicking its
-				title.
-			</p>
+			<p class="mb-2 text-xs font-medium tracking-wide text-on-surface-variant uppercase">Todos</p>
+			<div class="space-y-3">
+				<div>
+					<p class="text-on-surface">Editing</p>
+					<p class="mt-0.5">
+						Click the circle to check off, click the text to edit, drag the grip to reorder.
+						<span class="text-on-surface">Enter</span> adds a todo,
+						<span class="text-on-surface">Shift+Enter</span> starts a new line.
+					</p>
+				</div>
+				<div>
+					<p class="text-on-surface">Important</p>
+					<p class="mt-0.5">
+						Hover a todo and click the triangle to mark it important — its checkbox gets an accent
+						ring. Spaces with important undone todos show a triangle, and the favicon turns red
+						while any exist.
+					</p>
+				</div>
+				<div>
+					<p class="text-on-surface">Timers</p>
+					<p class="mt-0.5">
+						Hover a todo and click the alarm to set a countdown. It counts down in a pill next to
+						the todo and ends with a notification — an in-app toast when this tab is focused. Once
+						due, the pill becomes an alarm icon and stays until you clear or replace the timer;
+						checking the todo off also cancels it.
+					</p>
+					<p class="mt-0.5">
+						Timers run as long as jotter is open somewhere. If every tab is in the background, the
+						notification can arrive up to a minute late — browsers slow down hidden tabs to save
+						battery.
+					</p>
+				</div>
+			</div>
 		</div>
+
 		<div>
-			<p class="text-on-surface">Todos</p>
-			<p class="mt-0.5">
-				Click the circle to check off, click the text to edit, drag the grip to reorder.
-				<span class="text-on-surface">Enter</span> adds a todo,
-				<span class="text-on-surface">Shift+Enter</span> starts a new line.
+			<p class="mb-2 text-xs font-medium tracking-wide text-on-surface-variant uppercase">
+				General
 			</p>
-		</div>
-		<div>
-			<p class="text-on-surface">Important</p>
-			<p class="mt-0.5">
-				Hover a todo and click the triangle to mark it important — the checkbox gets an accent ring.
-				Tabs with important undone todos show a triangle, and the favicon turns red while any exist.
-			</p>
-		</div>
-		<div>
-			<p class="text-on-surface">Timers</p>
-			<p class="mt-0.5">
-				Hover a todo and click the alarm to set a countdown. It counts down in a small pill next to
-				the todo and ends with a notification (a toast when this tab is focused). The pill stays as
-				an alarm icon until you clear or replace the timer. Marking a todo done also cancels its
-				timer.
-			</p>
-			<p class="mt-0.5">
-				Timers run as long as jotter is open somewhere. If every tab is in the background, the
-				notification can arrive up to a minute late — browsers slow down hidden tabs to save
-				battery.
-			</p>
-		</div>
-		<div>
-			<p class="text-on-surface">Notes</p>
-			<p class="mt-0.5">Free-form text — everything is saved automatically as you type.</p>
-		</div>
-		<div>
-			<p class="text-on-surface">Storage</p>
-			<p class="mt-0.5">All data stays in your browser. Nothing is uploaded.</p>
+			<div class="space-y-3">
+				<div>
+					<p class="text-on-surface">Notes</p>
+					<p class="mt-0.5">Free-form text in a note card — saved automatically as you type.</p>
+				</div>
+				<div>
+					<p class="text-on-surface">Settings</p>
+					<p class="mt-0.5">
+						The gear opens settings: theme, fonts, and paper grain; auto todo handling (none, sort,
+						or delete), spell checking, and the timer chime; plus export, import, and clear for your
+						data.
+					</p>
+				</div>
+				<div>
+					<p class="text-on-surface">Storage</p>
+					<p class="mt-0.5">Everything stays in your browser. Nothing is uploaded.</p>
+				</div>
+			</div>
 		</div>
 	</div>
 </Modal>
