@@ -4,6 +4,7 @@ import { refreshFavicon } from '$lib/favicon';
 export type Mode = 'auto' | 'light' | 'dark';
 export type FontId = 'sans' | 'serif' | 'mono';
 export type TodoMode = 'none' | 'sort' | 'delete';
+export type ChimeId = 'none' | 'ping' | 'boom' | 'bubbles';
 
 export interface Settings {
 	mode: Mode;
@@ -15,6 +16,7 @@ export interface Settings {
 	doneToBottom: boolean;
 	keepImportant: boolean;
 	spellcheck: boolean;
+	timerChime: ChimeId;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -26,8 +28,16 @@ export const DEFAULT_SETTINGS: Settings = {
 	importantToTop: false,
 	doneToBottom: false,
 	keepImportant: false,
-	spellcheck: true
+	spellcheck: true,
+	timerChime: 'ping'
 };
+
+export const chimes: { value: ChimeId; label: string }[] = [
+	{ value: 'none', label: 'No sound' },
+	{ value: 'ping', label: 'Ping' },
+	{ value: 'boom', label: 'Boom' },
+	{ value: 'bubbles', label: 'Bubbles' }
+];
 
 export const todoModes: { value: TodoMode; label: string }[] = [
 	{ value: 'none', label: 'None' },
@@ -94,6 +104,7 @@ function initialSettings(): Settings {
 		let doneToBottom = DEFAULT_SETTINGS.doneToBottom;
 		let keepImportant = DEFAULT_SETTINGS.keepImportant;
 		let spellcheck = DEFAULT_SETTINGS.spellcheck;
+		let timerChime = DEFAULT_SETTINGS.timerChime;
 		try {
 			const parsed: Record<string, unknown> = JSON.parse(
 				window.localStorage.getItem(STORAGE_KEY) ?? ''
@@ -114,6 +125,12 @@ function initialSettings(): Settings {
 			doneToBottom = pickBool(parsed, 'doneToBottom', doneToBottom);
 			keepImportant = pickBool(parsed, 'keepImportant', keepImportant);
 			spellcheck = pickBool(parsed, 'spellcheck', spellcheck);
+			timerChime = pick(
+				parsed,
+				'timerChime',
+				chimes.map((c) => c.value),
+				timerChime
+			);
 			// migrate the old two toggles into the mode
 			if (!todoModes.some((m) => m.value === parsed.todoMode)) {
 				if (pickBool(parsed, 'autoDeleteDone', false)) todoMode = 'delete';
@@ -131,7 +148,8 @@ function initialSettings(): Settings {
 			importantToTop,
 			doneToBottom,
 			keepImportant,
-			spellcheck
+			spellcheck,
+			timerChime
 		};
 	}
 	return DEFAULT_SETTINGS;
@@ -222,4 +240,8 @@ export function setKeepImportant(keepImportant: boolean) {
 
 export function setSpellcheck(spellcheck: boolean) {
 	updateSetting('spellcheck', spellcheck);
+}
+
+export function setTimerChime(timerChime: ChimeId) {
+	updateSetting('timerChime', timerChime);
 }

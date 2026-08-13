@@ -6,6 +6,7 @@ import {
 	type Space,
 	type TodoCard,
 	type TodoItem,
+	type TimerState,
 	type NoteCard,
 	type Workspace
 } from './types';
@@ -46,13 +47,22 @@ function asString(v: unknown): string | null {
 	return typeof v === 'string' ? v : null;
 }
 
+function sanitizeTimer(raw: unknown): TimerState | null {
+	if (!isRecord(raw)) return null;
+	const endsAt = raw.endsAt;
+	if (typeof endsAt !== 'number' || !Number.isFinite(endsAt)) return null;
+	return { endsAt };
+}
+
 function sanitizeTodo(raw: unknown): TodoItem | null {
 	if (!isRecord(raw) || typeof raw.text !== 'string') return null;
+	const timer = sanitizeTimer(raw.timer);
 	return {
 		id: asString(raw.id) ?? newId(),
 		text: raw.text,
 		done: !!raw.done,
-		flagged: !!raw.flagged
+		flagged: !!raw.flagged,
+		...(timer ? { timer } : {})
 	};
 }
 

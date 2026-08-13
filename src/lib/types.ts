@@ -1,10 +1,15 @@
 export type CardType = 'todo' | 'note';
 
+export interface TimerState {
+	endsAt: number;
+}
+
 export interface TodoItem {
 	id: string;
 	text: string;
 	done: boolean;
 	flagged: boolean;
+	timer?: TimerState;
 }
 
 interface CardBase {

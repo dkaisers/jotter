@@ -208,9 +208,25 @@ export function setTodoDone(
 	done: boolean
 ) {
 	const { todoMode, importantToTop, doneToBottom, keepImportant } = get(settings);
-	mapCard(spaceId, columnId, cardId, (card) =>
-		applyTodoDone(card, todoId, done, todoMode, importantToTop, doneToBottom, keepImportant)
-	);
+	mapCard(spaceId, columnId, cardId, (card) => {
+		const next = applyTodoDone(
+			card,
+			todoId,
+			done,
+			todoMode,
+			importantToTop,
+			doneToBottom,
+			keepImportant
+		);
+		// marking a todo done cancels its running timer
+		if (done && next.type === 'todo') {
+			return {
+				...next,
+				todos: next.todos.map((t) => (t.id === todoId ? { ...t, timer: undefined } : t))
+			};
+		}
+		return next;
+	});
 }
 
 /** Stably sorts a todo card's todos according to the auto-todo-handling toggles. */

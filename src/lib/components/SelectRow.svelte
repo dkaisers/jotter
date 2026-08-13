@@ -17,7 +17,7 @@
 		'flex h-6 w-16 cursor-pointer items-center justify-center rounded-md text-sm data-[state=on]:bg-primary data-[state=on]:text-on-primary data-[state=off]:bg-surface-variant/40 data-[state=off]:text-on-surface focus:outline-none';
 </script>
 
-<div class="mb-2 flex items-center justify-between px-0.5">
+<div class="flex items-center justify-between px-0.5 py-1">
 	<span class="text-sm text-on-surface">{label}</span>
 	<ToggleGroup.Root
 		type="single"

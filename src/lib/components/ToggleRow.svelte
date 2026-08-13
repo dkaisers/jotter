@@ -17,10 +17,10 @@
 	<Switch.Root
 		{checked}
 		{onCheckedChange}
-		class="flex h-5 w-9 cursor-pointer items-center rounded-full p-0.5 transition-colors focus:outline-none data-[state=checked]:bg-primary data-[state=unchecked]:bg-surface-variant"
+		class="flex h-6 w-10 cursor-pointer items-center rounded-full p-0.5 transition-colors focus:outline-none data-[state=checked]:bg-primary data-[state=unchecked]:bg-surface-variant"
 	>
 		<Switch.Thumb
-			class={`size-4 rounded-full bg-white shadow transition-transform ${checked ? 'translate-x-4' : ''}`}
+			class={`size-5 rounded-full bg-white shadow transition-transform ${checked ? 'translate-x-4' : ''}`}
 		/>
 	</Switch.Root>
 </div>

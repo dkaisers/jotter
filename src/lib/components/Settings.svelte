@@ -1,10 +1,12 @@
 <script lang="ts">
-	import { Settings as SettingsIcon } from 'lucide-svelte';
+	import { ChevronDown, Settings as SettingsIcon } from 'lucide-svelte';
+	import { Select } from 'bits-ui';
 	import {
 		settings,
 		modes,
 		fonts,
 		todoModes,
+		chimes,
 		setMode,
 		setUiFont,
 		setContentFont,
@@ -14,10 +16,13 @@
 		setDoneToBottom,
 		setKeepImportant,
 		setSpellcheck,
+		setTimerChime,
 		type Mode,
 		type FontId,
-		type TodoMode
+		type TodoMode,
+		type ChimeId
 	} from '$lib/theme';
+	import { playChime } from '$lib/timer';
 	import Modal from './Modal.svelte';
 	import Confirm from './Confirm.svelte';
 	import ToggleRow from './ToggleRow.svelte';
@@ -153,6 +158,47 @@
 			checked={$settings.spellcheck}
 			onCheckedChange={setSpellcheck}
 		/>
+
+		<div class="flex items-center justify-between px-0.5 py-1">
+			<span class="text-sm text-on-surface">Timer chime</span>
+			<Select.Root
+				type="single"
+				items={chimes}
+				value={$settings.timerChime}
+				onValueChange={(v) => {
+					const kind = v as ChimeId;
+					setTimerChime(kind);
+					playChime(kind);
+				}}
+			>
+				<Select.Trigger
+					class="flex h-6 w-32 cursor-pointer items-center justify-between rounded-md border border-outline-variant bg-surface-variant/40 px-2 text-sm text-on-surface hover:bg-surface-variant focus:outline-none data-[state=open]:bg-surface-variant"
+				>
+					<Select.Value placeholder="Choose…" />
+					<ChevronDown class="size-3.5 text-on-surface-variant" />
+				</Select.Trigger>
+				<Select.Portal>
+					<Select.Content
+						side="bottom"
+						align="end"
+						sideOffset={4}
+						class="z-[80] rounded-lg border border-outline bg-surface p-1 shadow-xl shadow-black/25"
+					>
+						<Select.Viewport class="min-w-32">
+							{#each chimes as chime (chime.value)}
+								<Select.Item
+									value={chime.value}
+									label={chime.label}
+									class="flex cursor-pointer items-center rounded-md px-2 py-1.5 text-sm text-on-surface focus:outline-none data-[highlighted]:bg-surface-variant data-[state=checked]:text-primary"
+								>
+									{chime.label}
+								</Select.Item>
+							{/each}
+						</Select.Viewport>
+					</Select.Content>
+				</Select.Portal>
+			</Select.Root>
+		</div>
 	</div>
 
 	<div class="mt-4 border-t border-outline-variant pt-3">

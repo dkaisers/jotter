@@ -50,6 +50,20 @@
 			</p>
 		</div>
 		<div>
+			<p class="text-on-surface">Timers</p>
+			<p class="mt-0.5">
+				Hover a todo and click the alarm to set a countdown. It counts down in a small pill next to
+				the todo and ends with a notification (a toast when this tab is focused). The pill stays as
+				an alarm icon until you clear or replace the timer. Marking a todo done also cancels its
+				timer.
+			</p>
+			<p class="mt-0.5">
+				Timers run as long as jotter is open somewhere. If every tab is in the background, the
+				notification can arrive up to a minute late — browsers slow down hidden tabs to save
+				battery.
+			</p>
+		</div>
+		<div>
 			<p class="text-on-surface">Notes</p>
 			<p class="mt-0.5">Free-form text — everything is saved automatically as you type.</p>
 		</div>

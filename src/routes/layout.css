@@ -115,6 +115,22 @@
 	color: var(--on-primary);
 }
 
+/* Brief highlight flash when jumping to a todo from a notification */
+.flash-highlight {
+	animation: flash-highlight 1.6s ease;
+}
+
+@keyframes flash-highlight {
+	0%,
+	100% {
+		background-color: transparent;
+	}
+	25% {
+		background-color: color-mix(in srgb, var(--primary) 30%, transparent);
+		border-radius: 0.375rem;
+	}
+}
+
 /* Paper grain overlay — dark theme */
 html[data-grain='1'][data-theme='dark'] body::after {
 	content: '';
