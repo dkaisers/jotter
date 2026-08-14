@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { AlarmClock, Check, GripVertical, Trash2, TriangleAlert } from 'lucide-svelte';
+	import { AlarmClock, Check, GripVertical, Trash2, TriangleAlert } from '@lucide/svelte';
 	import { updateTodo, removeTodo, setTodoDone } from '$lib/workspace';
 	import type { Column, Space, TodoCard, TodoItem } from '$lib/workspace';
 	import { now, openTimerId, formatRemaining } from '$lib/timer';

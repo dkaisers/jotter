@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { CircleQuestionMark } from 'lucide-svelte';
+	import { CircleQuestionMark } from '@lucide/svelte';
 	import Modal from './Modal.svelte';
 
 	let open = $state(false);

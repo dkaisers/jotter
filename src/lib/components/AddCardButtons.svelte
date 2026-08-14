@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ListTodo, NotepadText } from 'lucide-svelte';
+	import { ListTodo, NotepadText } from '@lucide/svelte';
 	import type { CardType } from '$lib/workspace';
 
 	let { onadd }: { onadd: (type: CardType) => void } = $props();

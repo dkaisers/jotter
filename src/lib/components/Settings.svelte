@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ChevronDown, Settings as SettingsIcon } from 'lucide-svelte';
+	import { ChevronDown, Settings as SettingsIcon } from '@lucide/svelte';
 	import { Select } from 'bits-ui';
 	import {
 		settings,

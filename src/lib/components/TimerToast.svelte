@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { AlarmClock, X } from 'lucide-svelte';
+	import { AlarmClock, X } from '@lucide/svelte';
 	import { SvelteSet } from 'svelte/reactivity';
 	import { toasts, focusTodo, type TimerToast } from '$lib/timer';
 

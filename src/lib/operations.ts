@@ -265,6 +265,13 @@ export function removeTodo(spaceId: string, columnId: string, cardId: string, to
 	);
 }
 
+/** Removes every done todo from a todo card. */
+export function removeDoneTodos(spaceId: string, columnId: string, cardId: string) {
+	mapCard(spaceId, columnId, cardId, (card) =>
+		card.type === 'todo' ? { ...card, todos: card.todos.filter((t) => !t.done) } : card
+	);
+}
+
 export function reorderTodo(
 	spaceId: string,
 	columnId: string,

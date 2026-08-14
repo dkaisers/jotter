@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Spaces from './Spaces.svelte';
-	import { PenTool } from 'lucide-svelte';
+	import { PenTool } from '@lucide/svelte';
 	import { onMount } from 'svelte';
 
 	const REPO_URL = 'https://github.com/dkaisers/jotter';

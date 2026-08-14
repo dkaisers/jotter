@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { AlarmClock, Trash2, X } from 'lucide-svelte';
+	import { AlarmClock, Trash2, X } from '@lucide/svelte';
 	import { startTimer, clearTimer, formatRemaining, type TimerRef } from '$lib/timer';
 	import type { TodoItem } from '$lib/workspace';
 	import NumberWheel from './NumberWheel.svelte';

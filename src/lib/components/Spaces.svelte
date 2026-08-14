@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ChevronLeft, ChevronRight, Plus, TriangleAlert, X } from 'lucide-svelte';
+	import { ChevronLeft, ChevronRight, Plus, TriangleAlert, X } from '@lucide/svelte';
 	import {
 		activeSpace,
 		addSpace,

@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { ArrowUpDown, GripVertical, Trash2 } from 'lucide-svelte';
+	import { ArrowUpDown, Broom, GripVertical, Trash2 } from '@lucide/svelte';
 	import {
 		removeCard,
+		removeDoneTodos,
 		setCardTitle,
 		sortTodos,
 		type Card,
@@ -33,6 +34,7 @@
 	let titleInput: HTMLInputElement | undefined = $state();
 
 	const hasContent = $derived(card.type === 'todo' ? card.todos.length > 0 : card.text.length > 0);
+	const hasDoneTodos = $derived(card.type === 'todo' && card.todos.some((t) => t.done));
 
 	function startRename() {
 		titleDraft = card.title;
@@ -99,6 +101,17 @@
 				class="flex h-6 shrink-0 cursor-pointer items-center rounded-md px-1 text-on-surface-variant opacity-0 transition-opacity group-hover:opacity-100 hover:bg-surface-variant hover:text-on-surface focus:outline-none"
 			>
 				<ArrowUpDown class="size-4" />
+			</button>
+			<button
+				type="button"
+				title="Remove done todos"
+				onclick={() => removeDoneTodos(space.id, column.id, card.id)}
+				disabled={!hasDoneTodos}
+				class="flex h-6 shrink-0 cursor-pointer items-center rounded-md px-1 text-on-surface-variant transition-opacity hover:bg-surface-variant hover:text-on-surface focus:outline-none disabled:pointer-events-none disabled:opacity-0"
+				class:opacity-0={!hasDoneTodos}
+				class:group-hover:opacity-100={hasDoneTodos}
+			>
+				<Broom class="size-4" />
 			</button>
 		{/if}
 
