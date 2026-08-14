@@ -107,9 +107,7 @@
 				title="Remove done todos"
 				onclick={() => removeDoneTodos(space.id, column.id, card.id)}
 				disabled={!hasDoneTodos}
-				class="flex h-6 shrink-0 cursor-pointer items-center rounded-md px-1 text-on-surface-variant transition-opacity hover:bg-surface-variant hover:text-on-surface focus:outline-none disabled:pointer-events-none disabled:opacity-0"
-				class:opacity-0={!hasDoneTodos}
-				class:group-hover:opacity-100={hasDoneTodos}
+				class="flex h-6 shrink-0 cursor-pointer items-center rounded-md px-1 text-on-surface-variant opacity-0 transition-opacity group-hover:opacity-100 hover:bg-surface-variant hover:text-on-surface focus:outline-none disabled:pointer-events-none disabled:text-outline"
 			>
 				<Broom class="size-4" />
 			</button>
