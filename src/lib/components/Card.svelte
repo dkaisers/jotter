@@ -11,8 +11,10 @@
 	} from '$lib/workspace';
 	import TodoList from './TodoList.svelte';
 	import NoteArea from './NoteArea.svelte';
+	import NoteToolbar from './NoteToolbar.svelte';
 	import Confirm from './Confirm.svelte';
 	import { settings } from '$lib/theme';
+	import type { Editor } from 'svelte-tiptap';
 
 	let {
 		space,
@@ -32,9 +34,25 @@
 	let titleDraft = $state('');
 	let confirming = $state(false);
 	let titleInput: HTMLInputElement | undefined = $state();
+	let noteEditor = $state<Editor | undefined>();
+	let noteFocused = $state(false);
 
 	const hasContent = $derived(card.type === 'todo' ? card.todos.length > 0 : card.text.length > 0);
 	const hasDoneTodos = $derived(card.type === 'todo' && card.todos.some((t) => t.done));
+
+	$effect(() => {
+		const ed = noteEditor;
+		if (!ed) return;
+		noteFocused = ed.isFocused;
+		const onFocus = () => (noteFocused = true);
+		const onBlur = () => (noteFocused = false);
+		ed.on('focus', onFocus);
+		ed.on('blur', onBlur);
+		return () => {
+			ed.off('focus', onFocus);
+			ed.off('blur', onBlur);
+		};
+	});
 
 	function startRename() {
 		titleDraft = card.title;
@@ -111,23 +129,33 @@
 			>
 				<Broom class="size-4" />
 			</button>
+			<button
+				type="button"
+				title="Delete card"
+				onclick={deleteCard}
+				class="flex h-6 shrink-0 cursor-pointer items-center rounded-md px-1 text-on-surface-variant opacity-0 transition-opacity group-hover:opacity-100 hover:bg-surface-variant hover:text-on-surface focus:ring-2 focus:ring-primary focus:outline-none"
+			>
+				<Trash2 class="size-4" />
+			</button>
+		{:else if noteEditor && noteFocused}
+			<NoteToolbar editor={noteEditor} />
+		{:else}
+			<button
+				type="button"
+				title="Delete card"
+				onclick={deleteCard}
+				class="flex h-6 shrink-0 cursor-pointer items-center rounded-md px-1 text-on-surface-variant opacity-0 transition-opacity group-hover:opacity-100 hover:bg-surface-variant hover:text-on-surface focus:ring-2 focus:ring-primary focus:outline-none"
+			>
+				<Trash2 class="size-4" />
+			</button>
 		{/if}
-
-		<button
-			type="button"
-			title="Delete card"
-			onclick={deleteCard}
-			class="flex h-6 shrink-0 cursor-pointer items-center rounded-md px-1 text-on-surface-variant opacity-0 transition-opacity group-hover:opacity-100 hover:bg-surface-variant hover:text-on-surface focus:ring-2 focus:ring-primary focus:outline-none"
-		>
-			<Trash2 class="size-4" />
-		</button>
 	</header>
 
 	<div class="content min-h-0 flex-1 px-3 pt-3 pb-3">
 		{#if card.type === 'todo'}
 			<TodoList {space} {column} {card} {autofocus} />
 		{:else}
-			<NoteArea {space} {column} {card} {autofocus} />
+			<NoteArea {space} {column} {card} {autofocus} bind:editor={noteEditor} />
 		{/if}
 	</div>
 </div>

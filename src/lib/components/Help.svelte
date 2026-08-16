@@ -86,7 +86,20 @@
 			<div class="space-y-3">
 				<div>
 					<p class="text-on-surface">Notes</p>
-					<p class="mt-0.5">Free-form text in a note card — saved automatically as you type.</p>
+					<p class="mt-0.5">
+						Rich text in a note card, saved as markdown as you type. While editing, a formatting bar
+						appears below the title. Keyboard shortcuts:
+						<span class="text-on-surface">Ctrl/Cmd+B</span> bold,
+						<span class="text-on-surface">I</span> italic,
+						<span class="text-on-surface">E</span> strikethrough,
+						<span class="text-on-surface">Ctrl/Cmd+Alt+5</span>, lists with
+						<span class="text-on-surface">Ctrl/Cmd+Shift+7/8</span>, indent lists with
+						<span class="text-on-surface">Tab</span>/<span class="text-on-surface">Shift+Tab</span>,
+						and undo with <span class="text-on-surface">Ctrl/Cmd+Z</span>. Typing markdown like
+						<span class="text-on-surface">&gt; </span>, <span class="text-on-surface">- </span>, or
+						<span class="text-on-surface">1. </span> converts as you go; pasted markdown renders, and
+						copied text comes out as markdown.
+					</p>
 				</div>
 				<div>
 					<p class="text-on-surface">Settings</p>

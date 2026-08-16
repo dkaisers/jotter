@@ -48,6 +48,12 @@
 		"vitest": "^4.1.10"
 	},
 	"dependencies": {
-		"bits-ui": "^2.18.1"
+		"@tiptap/core": "^2",
+		"@tiptap/extension-link": "^2",
+		"@tiptap/extension-placeholder": "^2",
+		"@tiptap/starter-kit": "^2",
+		"bits-ui": "^2.18.1",
+		"svelte-tiptap": "^3.0.1",
+		"tiptap-markdown": "^0.8"
 	}
 }
