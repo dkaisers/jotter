@@ -80,27 +80,43 @@
 		</div>
 
 		<div>
+			<p class="mb-2 text-xs font-medium tracking-wide text-on-surface-variant uppercase">Notes</p>
+			<div class="space-y-3">
+				<div>
+					<p class="text-on-surface">Editing</p>
+					<p class="mt-0.5">
+						Notes are rich text, saved as markdown as you type. Click into a note to start editing;
+						click away to stop. A formatting bar appears below the title while you're editing.
+					</p>
+				</div>
+				<div>
+					<p class="text-on-surface">Formatting bar</p>
+					<p class="mt-0.5">
+						The bar covers bold, italic, and strikethrough; inline code, links, and code blocks; and
+						bullet and numbered lists plus quotes. Hover any button to see its keyboard shortcut.
+					</p>
+				</div>
+				<div>
+					<p class="text-on-surface">Markdown</p>
+					<p class="mt-0.5">
+						Typing markdown syntax like <span class="text-on-surface">&gt; </span>,
+						<span class="text-on-surface">- </span>, or <span class="text-on-surface">1. </span>
+						converts it as you go. Pasting markdown renders it, and copying text from a note gives you
+						markdown — so notes move cleanly between jotter and other tools.
+					</p>
+					<p class="mt-0.5">
+						Click a link in a note to open it in a new tab. While editing, a click puts the cursor
+						in the link instead, so you can change it.
+					</p>
+				</div>
+			</div>
+		</div>
+
+		<div>
 			<p class="mb-2 text-xs font-medium tracking-wide text-on-surface-variant uppercase">
 				General
 			</p>
 			<div class="space-y-3">
-				<div>
-					<p class="text-on-surface">Notes</p>
-					<p class="mt-0.5">
-						Rich text in a note card, saved as markdown as you type. While editing, a formatting bar
-						appears below the title. Keyboard shortcuts:
-						<span class="text-on-surface">Ctrl/Cmd+B</span> bold,
-						<span class="text-on-surface">I</span> italic,
-						<span class="text-on-surface">E</span> strikethrough,
-						<span class="text-on-surface">Ctrl/Cmd+Alt+5</span>, lists with
-						<span class="text-on-surface">Ctrl/Cmd+Shift+7/8</span>, indent lists with
-						<span class="text-on-surface">Tab</span>/<span class="text-on-surface">Shift+Tab</span>,
-						and undo with <span class="text-on-surface">Ctrl/Cmd+Z</span>. Typing markdown like
-						<span class="text-on-surface">&gt; </span>, <span class="text-on-surface">- </span>, or
-						<span class="text-on-surface">1. </span> converts as you go; pasted markdown renders, and
-						copied text comes out as markdown.
-					</p>
-				</div>
 				<div>
 					<p class="text-on-surface">Settings</p>
 					<p class="mt-0.5">
@@ -111,7 +127,16 @@
 				</div>
 				<div>
 					<p class="text-on-surface">Storage</p>
-					<p class="mt-0.5">Everything stays in your browser. Nothing is uploaded.</p>
+					<p class="mt-0.5">
+						Everything stays in this browser — nothing is uploaded. Your workspace lives in this
+						browser's local storage, tied to this browser and profile, so a different browser, a
+						private window, or another device won't load the same data.
+					</p>
+					<p class="mt-0.5">
+						Clearing this site's data (or browser storage in general) erases your workspace, and
+						private/incognito windows start empty. Use the backup export in settings to keep your
+						notes safe.
+					</p>
 				</div>
 			</div>
 		</div>

@@ -136,6 +136,38 @@
 			</li>
 			<li>
 				<a
+					href="https://tiptap.dev"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="text-primary hover:underline">Tiptap</a
+				>
+				—
+				<a
+					href="https://github.com/sibiraj-s/svelte-tiptap"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="text-primary hover:underline">svelte-tiptap</a
+				>
+				&amp;
+				<a
+					href="https://github.com/aguingand/tiptap-markdown"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="text-primary hover:underline">tiptap-markdown</a
+				>
+				— MIT
+			</li>
+			<li>
+				<a
+					href="https://prosemirror.net"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="text-primary hover:underline">ProseMirror</a
+				>
+				— MIT
+			</li>
+			<li>
+				<a
 					href="https://rsms.me/inter/"
 					target="_blank"
 					rel="noopener noreferrer"

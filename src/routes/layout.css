@@ -101,6 +101,11 @@
 			background-color 150ms ease,
 			color 150ms ease;
 	}
+
+	::selection {
+		background-color: var(--primary);
+		color: var(--on-primary);
+	}
 }
 
 /* Content surfaces use the content font */

@@ -14,6 +14,9 @@
 
 	let { editor }: { editor: Editor } = $props();
 
+	const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/.test(navigator.platform);
+	const mod = isMac ? 'Cmd' : 'Ctrl';
+
 	let tick = $state(0);
 
 	$effect(() => {
@@ -65,7 +68,7 @@
 >
 	<button
 		type="button"
-		title="Bold (Ctrl/Cmd+B)"
+		title={`Bold (${mod}+B)`}
 		onclick={() => editor.chain().focus().toggleBold().run()}
 		class={btnClass(active.bold)}
 	>
@@ -73,7 +76,7 @@
 	</button>
 	<button
 		type="button"
-		title="Italic (Ctrl/Cmd+I)"
+		title={`Italic (${mod}+I)`}
 		onclick={() => editor.chain().focus().toggleItalic().run()}
 		class={btnClass(active.italic)}
 	>
@@ -81,7 +84,7 @@
 	</button>
 	<button
 		type="button"
-		title="Strikethrough (Ctrl/Cmd+Alt+5)"
+		title={`Strikethrough (${mod}+Shift+S)`}
 		onclick={() => editor.chain().focus().toggleStrike().run()}
 		class={btnClass(active.strike)}
 	>
@@ -89,7 +92,7 @@
 	</button>
 	<button
 		type="button"
-		title="Inline code"
+		title={`Inline code (${mod}+E)`}
 		onclick={() => editor.chain().focus().toggleCode().run()}
 		class={btnClass(active.code)}
 	>
@@ -103,7 +106,7 @@
 
 	<button
 		type="button"
-		title="Bullet list (Ctrl/Cmd+Shift+7)"
+		title={`Bullet list (${mod}+Shift+8)`}
 		onclick={() => editor.chain().focus().toggleBulletList().run()}
 		class={btnClass(active.bulletList)}
 	>
@@ -111,7 +114,7 @@
 	</button>
 	<button
 		type="button"
-		title="Ordered list (Ctrl/Cmd+Shift+8)"
+		title={`Ordered list (${mod}+Shift+7)`}
 		onclick={() => editor.chain().focus().toggleOrderedList().run()}
 		class={btnClass(active.orderedList)}
 	>
@@ -119,7 +122,7 @@
 	</button>
 	<button
 		type="button"
-		title="Quote"
+		title={`Quote (${mod}+Shift+B)`}
 		onclick={() => editor.chain().focus().toggleBlockquote().run()}
 		class={btnClass(active.blockquote)}
 	>
@@ -127,7 +130,7 @@
 	</button>
 	<button
 		type="button"
-		title="Code block (Ctrl/Cmd+Alt+C)"
+		title={`Code block (${mod}+Alt+C)`}
 		onclick={() => editor.chain().focus().toggleCodeBlock().run()}
 		class={btnClass(active.codeBlock)}
 	>
